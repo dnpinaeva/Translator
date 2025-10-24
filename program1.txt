@@ -1,0 +1,19 @@
+123.9
+12ab
+"adzsd"
+'agerdrj'
+'b'
+143.436 
+135.668.89
+125.a
+
+
+
+
+
+struct Node {
+    vector<int> next;
+    bool term;
+    int size;
+    Node(): next(k, -1), term(false), size(0) {};
+};
