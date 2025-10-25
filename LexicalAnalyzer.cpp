@@ -44,6 +44,7 @@ pair<int, string> LexicalAnalyzer(Trie& trie) {
     bool is_string = 0;
     int start_type = -1;
     bool was_point = 0;
+    bool is_comment = 0;
     if (('a' <= *current && *current <= 'z') || ('A' <= *current && *current <= 'Z')
         || *current == '_') {
         type = 0;
@@ -81,6 +82,19 @@ pair<int, string> LexicalAnalyzer(Trie& trie) {
         return { type, res };
     }
     for (; current < text + size_text && !is_end; ++current) {
+        /*if (is_comment) {
+            if (*current == '/') {
+                while (current < text + size_text && *current != '\n' && *current != '$') {
+                    ++current;
+                }
+                
+            }
+            else {
+                is_end = 1;
+                type = 7;
+                break;
+            }
+        }*/
         if (type == 0) {
             if (('a' <= *current && *current <= 'z') || ('A' <= *current && *current <= 'Z')
                 || *current == '_' || ('0' <= *current && *current <= '9')) {
@@ -134,6 +148,35 @@ pair<int, string> LexicalAnalyzer(Trie& trie) {
         }
         else if (type == 3) {
             if (set_operations_signs.find(*current) != set_operations_signs.end()) {
+                if (last == '/' && *current == '/') {
+                    while (current < text + size_text && *current != '\n' && *current != '$') {
+                        ++current;
+                    }
+                    type = 8;
+                    res = "comment";
+                    //cout << type;
+                    is_end = 1;
+                    break;
+                }
+                if (last == '/' && *current == '*') {
+                    while (current < text + size_text && (*current != '/' || last != '*') && *current != '$') {
+                        res += *current;
+                        last = *current;
+                        ++current;
+                    }
+                    if (last == '*' && *current == '/') {
+                        type = 8;
+                        res = "comment";
+                        is_end = 1;
+                        ++current;
+                        break;
+                    }
+                    else {
+                        type = 7;
+                        is_end = 1;
+                        break;
+                    }
+                }
                 res += *current;
                 if (set_operations.find(res) != set_operations.end()) {
                     is_end = 1;
@@ -228,7 +271,9 @@ int main()
 
     while (current < text + size_text) {
         pair<int, string> p = LexicalAnalyzer(trie);
-        cout << p.first << " " << p.second << "\n";
+        if (p.first != 8) {
+            cout << p.first << " " << p.second << "\n";
+        }
     }
 
 }

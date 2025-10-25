@@ -7,13 +7,24 @@
 135.668.89
 125.a
 
+int forif;
 
+a+++++++b,a!b,a!=b.n//ghdhvhjsdvhjsd
 
+//sdfvdfhdhjs
 
+/*sdfhjksdhj*/jkdfgjkf
 
 struct Node {
-    vector<int> next;
+    int next;
     bool term;
     int size;
+/*sdavfnjkvfv
+fffbhfbi
+fyfff
+*/
     Node(): next(k, -1), term(false), size(0) {};
 };
+//fhjfdfssdf
+/*dfjkvfbfjknjf
+fhbvf
