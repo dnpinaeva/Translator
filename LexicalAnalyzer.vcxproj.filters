@@ -18,9 +18,15 @@
     <ClCompile Include="LexicalAnalyzer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Source.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Trie.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="LexicalAnalyzer.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

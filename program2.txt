@@ -1,0 +1,16 @@
+std::ifstream in("program2.txt", std::ios::binary);
+in.seekg(0, std::ios::end);
+size_text = in.tellg();
+in.seekg(0);
+text = new char[size_text + 1];
+in.read(text, size_text);
+++size_text;
+char* i = text;
+for (; i < text + size_text - 1; ++i);
+*i = '$';
+*i = 'a';
+//cg ggvvubh
+/*vhjbiulb*/
+cout << size_text << "\n";
+int type = -1;
+current = text;
