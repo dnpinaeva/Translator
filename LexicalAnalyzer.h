@@ -26,9 +26,6 @@ using std::pair;
 8 - комменты
 */
 
-set<char> set_operations_signs = { '+', '-', '[', ']', '*', '/', '%', '!', '>', '<', '=', '&', '|', '.' };
-set<string> set_operations = { "+", "-", "*", "/", "[", "]", "++", "--", "%", ">", "<", "==", ">=", "<=", "!=", "!", "&&", "||", "=", "." };
-
 struct Lexeme {
     int type;
     string value;
@@ -43,6 +40,8 @@ public:
 	int size_text = 0;
 	char* text = nullptr;
     Trie trie;
+    set<char> set_operations_signs = { '+', '-', '[', ']', '*', '/', '%', '!', '>', '<', '=', '&', '|', '.' };
+    set<string> set_operations = { "+", "-", "*", "/", "[", "]", "++", "--", "%", ">", "<", "==", ">=", "<=", "!=", "!", "&&", "||", "=", "." };
     void load() {
         std::ifstream in("program2.txt", std::ios::binary);
         in.seekg(0, std::ios::end);

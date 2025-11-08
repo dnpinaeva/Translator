@@ -289,7 +289,7 @@ int main()
     //cout << trie.v.size() << "\n";
     LexicalAnalyzer lexer;
     lexer.load();
-    cout << lexer.trie.v.size() << "\n";
+    //cout << lexer.trie.v.size() << "\n";
 
     while (lexer.current < lexer.text + lexer.size_text) {
         Lexeme p = lexer.get();

@@ -142,3 +142,23 @@ void Parser::function_notitle() {
 	current_lexeme = lexer.get();
 	block();
 }
+
+void Parser::expression() {
+
+}
+
+void Parser::parameters() {
+
+}
+
+void Parser::parameters_description() {
+
+}
+
+void Parser::block() {
+
+}
+
+void Parser::map_notitle() {
+
+}
