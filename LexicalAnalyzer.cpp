@@ -2,6 +2,8 @@
 //
 
 #include "LexicalAnalyzer.h"
+#include "Parser.h"
+
 
 #include <iostream>
 #include <fstream>
@@ -17,16 +19,16 @@ using std::set;
 using std::pair;
 
 /*
-0 - идентификатор
-1 - служебное слово
-2 - литерал
-3 - операция ([], a++/a--, ++a/--a, арифметика, отрицание, сравнение, логические операции, присваивание)
-4 - пунктуация ( {} () ; )
+0 - identifier
+1 - keyword
+2 - literal
+3 - operation ([], a++/a--, ++a/--a, арифметика, отрицание, сравнение, логические операции, присваивание)
+4 - punctuation ( {} () ; )
 5 - ,
-6 - $ (конец файла)
+6 - $ (end of file)
 7 - else
 
-6 - комменты :( :)
+8 - comments
 */
 
 //char* current = NULL;
@@ -291,11 +293,26 @@ int main()
     lexer.load();
     //cout << lexer.trie.v.size() << "\n";
 
-    while (lexer.current < lexer.text + lexer.size_text) {
+    /*while (lexer.current < lexer.text + lexer.size_text) {
         Lexeme p = lexer.get();
         cout << p.type << " " << p.value << "\n";
-    }
+    }*/
 
+    try {
+        Parser parser(lexer);
+        parser.start();
+    }
+    catch (Lexeme e) {
+        cout << "\n";
+        cout << "error lexeme\n";
+        if (e.value == "$") {
+            cout << "end of file" << "\n" << "in line " << e.line << "\n";
+        }
+        else {
+            cout << e.value << "\n" << "in line " << e.line << "\n";
+        }
+    }
+    cout << "finish";
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"

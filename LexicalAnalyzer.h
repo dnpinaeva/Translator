@@ -14,23 +14,28 @@ using std::set;
 using std::pair;
 
 /*
-0 - идентификатор
-1 - служебное слово
-2 - литерал
-3 - операция ([], a++/a--, ++a/--a, арифметика, отрицание, сравнение, логические операции, присваивание)
-4 - пунктуация ( {} () ; )
+0 - identifier
+1 - keyword
+2 - literal
+3 - operation ([], a++/a--, ++a/--a, арифметика, отрицание, сравнение, логические операции, присваивание)
+4 - punctuation ( {} () ; )
 5 - ,
-6 - $ (конец файла)
+6 - $ (end of file)
 7 - else
 
-8 - комменты
+8 - comments
+
+20 - string
+21 - symbol
+22 - number
 */
 
 struct Lexeme {
     int type;
-    string value;
-    Lexeme() : type(0), value("") {}
-    Lexeme(int t, string v) : type(t), value(v) {}
+    string value; 
+    int line;
+    Lexeme() : type(0), value(""), line(0) {}
+    Lexeme(int t, string v, int line) : type(t), value(v), line(line) {}
 };
 
 class LexicalAnalyzer {
@@ -40,6 +45,7 @@ public:
 	int size_text = 0;
 	char* text = nullptr;
     Trie trie;
+    int line_current = 0;
     set<char> set_operations_signs = { '+', '-', '[', ']', '*', '/', '%', '!', '>', '<', '=', '&', '|', '.' };
     set<string> set_operations = { "+", "-", "*", "/", "[", "]", "++", "--", "%", ">", "<", "==", ">=", "<=", "!=", "!", "&&", "||", "=", "." };
     void load() {
@@ -53,7 +59,7 @@ public:
         char* i = text;
         for (; i < text + size_text - 1; ++i);
         *i = '$';
-        cout << size_text << "\n";
+        //cout << size_text << "\n";
         int type = -1;
         current = text;
         /*int ind = 0;
@@ -72,16 +78,25 @@ public:
         }
     }
     Lexeme get() {
+        if (current >= text + size_text) {
+            throw Lexeme(-1, "error", 0);
+        }
         Lexeme p = this->get_lexeme();
         while (p.type == 8) {
             p = this->get_lexeme();
         }
+        cout << p.value << "\n";
         return p;
     }
 private:
 
     Lexeme get_lexeme() {
-        while (current < text + size_text && (*current == ' ' || *current == '\n' || *current == '\r')) ++current;
+        while (current < text + size_text && (*current == ' ' || *current == '\n' || *current == '\r')) {
+            if (*current == '\n') {
+                ++line_current;
+            }
+            ++current;
+        }
         string res = "";
         int type = -1;
         bool is_end = 0;
@@ -125,7 +140,7 @@ private:
         last = *current;
         res += *(current++);
         if (is_end) {
-            return { type, res };
+            return Lexeme( type, res, line_current );
         }
         for (; current < text + size_text && !is_end; ++current) {
             /*if (is_comment) {
@@ -182,7 +197,6 @@ private:
                     }
                 }
                 else {
-                    // ЧИСЕЛКА РАЗОБРАТЬ НАДО
                     if ('0' <= *current && *current <= '9') {
                         res += *current;
                     }
@@ -217,6 +231,9 @@ private:
                     }
                     if (last == '/' && *current == '*') {
                         while (current < text + size_text && (*current != '/' || last != '*') && *current != '$') {
+                            if (*current == '\n') {
+                                ++line_current;
+                            }
                             res += *current;
                             last = *current;
                             ++current;
@@ -289,9 +306,12 @@ private:
                     type = 1;
                 }
             }
-            return Lexeme(type, res);
+            if (type == 2) {
+                type = type * 10 + start_type;
+            }
+            return Lexeme(type, res, line_current);
         }
-        return Lexeme(7, res);
+        return Lexeme(7, res, line_current);
     }
 
     
