@@ -1,5 +1,7 @@
 #pragma once
 
+#include "LexicalAnalyzer.h"
+
 #include <string>
 #include <vector>
 
@@ -14,8 +16,8 @@ TID type:
 */
 
 struct StructTid {
-	std::string name; int type;
-	StructTid(const std::string& name, int type) : name(name), type(type) {}
+	std::string name, type;
+	StructTid(const std::string& name, const std::string& type) : name(name), type(type) {}
 	bool operator==(const StructTid& other) const {
 		return name == other.name && type == other.type;
 	}
@@ -36,12 +38,12 @@ struct StructStack {
 class SemanticAnalysis {
 public:
 	void Create_TID();
-	void Push_ID(const std::string& name, int type);
+	void Push_ID(const Lexeme& lex, const std::string& type);
 	void Delete_TID();
-	int Check_ID(const std::string& name);
-	void New_Func(const std::string& name, const std::string& inner_name, int type);
-	int Check_Call(const std::string& name, const std::string& inner_name);
-	void Push_Stack(int type, const std::string& name);
+	std::string Check_ID(const Lexeme& name);
+	void New_Func(const Lexeme& name, const std::string& inner_name, int type);
+	int Check_Call(const Lexeme& name, const std::string& inner_name);
+	void Push_Stack(int type, const Lexeme& lex);
 	void Check_Bin();
 	void Check_Uno();
 	void Check_If();

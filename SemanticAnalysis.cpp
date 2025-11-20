@@ -6,11 +6,12 @@ void SemanticAnalysis::Create_TID() {
 	StackTID.push_back({});
 }
 
-void SemanticAnalysis::Push_ID(const std::string& name, int type) {
-	StructTid new_id(name, type);
+void SemanticAnalysis::Push_ID(const Lexeme& lex, const std::string& type) {
+	StructTid new_id(lex.value, type);
+	NumberString = std::to_string(lex.line);
 	for (auto& el : StackTID.back()) {
 		if (el == new_id) {
-			throw "Id " + name + " already exists in string " + NumberString;
+			throw "Id " + lex.value + " already exists in string " + NumberString;
 		}
 	}
 	StackTID.back().push_back(new_id);
@@ -21,36 +22,39 @@ void SemanticAnalysis::Delete_TID() {
 	StackTID.pop_back();
 }
 
-int SemanticAnalysis::Check_ID(const std::string& name) {
+std::string SemanticAnalysis::Check_ID(const Lexeme& lex) {
+	NumberString = std::to_string(lex.line);
 	for (auto& el : StackTID.back()) {
-		if (el.name == name) {
+		if (el.name == lex.value) {
 			return el.type;
 		}
 	}
-	throw "Id " + name + " doesn't exist in string " + NumberString;
+	throw "Id " + lex.value + " doesn't exist in string " + NumberString;
 }
 
-void SemanticAnalysis::New_Func(const std::string& name, const std::string& inner_name, int type) {
-	StructTf new_id(name, inner_name, type);
+void SemanticAnalysis::New_Func(const Lexeme& lex, const std::string& inner_name, int type) {
+	StructTf new_id(lex.value, inner_name, type);
+	NumberString = std::to_string(lex.line);
 	for (auto& el : TF) {
 		if (el.inner_name == inner_name) {
-			throw "Redefining a function " + name + " in string " + NumberString;
+			throw "Redefining a function " + lex.value + " in string " + NumberString;
 		}
 	}
 	TF.push_back(new_id);
 }
 
-int SemanticAnalysis::Check_Call(const std::string& name, const std::string& inner_name) {
+int SemanticAnalysis::Check_Call(const Lexeme& lex, const std::string& inner_name) {
+	NumberString = std::to_string(lex.line);
 	for (auto& el : TF) {
 		if (el.inner_name == inner_name) {
 			return el.type_back;
 		}
 	}
-	throw "Function " + name + " with those parameters doesn't exist in string " + NumberString;
+	throw "Function " + lex.value + " with those parameters doesn't exist in string " + NumberString;
 }
 
-void SemanticAnalysis::Push_Stack(int type, const std::string& name) {
-	// Stack.push_back({ type,  , name});
+void SemanticAnalysis::Push_Stack(int type, const Lexeme& lex) {
+	Stack.push_back({ type, lex.value});
 }
 
 
