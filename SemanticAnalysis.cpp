@@ -6,8 +6,8 @@ void SemanticAnalysis::Create_TID() {
 	StackTID.push_back({});
 }
 
-void SemanticAnalysis::Push_ID(const Lexeme& lex, const std::string& type) {
-	StructTid new_id(lex.value, type);
+void SemanticAnalysis::Push_ID(const Lexeme& lex, const std::string& type, std::string type2 = "") {
+	StructTid new_id(lex.value, type, type2);
 	NumberString = std::to_string(lex.line);
 	for (auto& el : StackTID.back()) {
 		if (el == new_id) {
@@ -32,7 +32,7 @@ std::string SemanticAnalysis::Check_ID(const Lexeme& lex) {
 	throw "Id " + lex.value + " doesn't exist in string " + NumberString;
 }
 
-void SemanticAnalysis::New_Func(const Lexeme& lex, const std::string& inner_name, int type) {
+void SemanticAnalysis::New_Func(const Lexeme& lex, const std::string& inner_name, const std::string& type) {
 	StructTf new_id(lex.value, inner_name, type);
 	NumberString = std::to_string(lex.line);
 	for (auto& el : TF) {
@@ -43,7 +43,7 @@ void SemanticAnalysis::New_Func(const Lexeme& lex, const std::string& inner_name
 	TF.push_back(new_id);
 }
 
-int SemanticAnalysis::Check_Call(const Lexeme& lex, const std::string& inner_name) {
+std::string SemanticAnalysis::Check_Call(const Lexeme& lex, const std::string& inner_name) {
 	NumberString = std::to_string(lex.line);
 	for (auto& el : TF) {
 		if (el.inner_name == inner_name) {
@@ -53,7 +53,8 @@ int SemanticAnalysis::Check_Call(const Lexeme& lex, const std::string& inner_nam
 	throw "Function " + lex.value + " with those parameters doesn't exist in string " + NumberString;
 }
 
-void SemanticAnalysis::Push_Stack(int type, const Lexeme& lex) {
+void SemanticAnalysis::Push_Stack(int type, Lexeme lex) {
+	if (lex.type != 0) lex.value = "";
 	Stack.push_back({ type, lex.value});
 }
 
@@ -78,6 +79,7 @@ a-- -3
 && -17
 || -18
 = -19
+find -20
 
 0 - int
 1 - float
@@ -90,7 +92,8 @@ a-- -3
 8 - map char
 */
 
-void SemanticAnalysis::Check_Bin() {
+void SemanticAnalysis::Check_Bin(int number_line) {
+	NumberString = std::to_string(number_line);
 	if (Stack.size() < 3) throw "Incorrect expression in string " + NumberString;
 	auto b = Stack.back(); Stack.pop_back();
 	auto t = Stack.back(); Stack.pop_back();
@@ -98,7 +101,7 @@ void SemanticAnalysis::Check_Bin() {
 	if (t.type >= 0 || t.type == -10 || (t.type >= -2 && t.type <= -5) || a.type < 0 || b.type < 0) throw "Incorrect expression in string " + NumberString;
 	if (t.type == -1) {
 		if (a.type < 3) throw "Cannot dereference a non-array(non-map) in string " + NumberString;
-		if (b.type != 0 && b.type != 2) throw "Expression in [] is incorrect in string " + NumberString;
+		if (b.type != 0 && b.type != 2 && a.type < 6) throw "Expression in [] is incorrect in string " + NumberString;
 		Stack.push_back({ a.type % 3, "" });
 		return;
 	}
@@ -230,14 +233,20 @@ void SemanticAnalysis::Check_Bin() {
 		if (a.type || b.type) throw "Cannot use || with non-bool arguments in string " + NumberString;
 		Stack.push_back({ 0, "" });
 	}
-	else {
+	else if (t.type == -19) {
 		if (a.name == "") throw "r-value cannot be be to the left of = in string " + NumberString;
 		if ((a.type >= 3) ^ (b.type >= 3)) throw "Array and number/identifier are not compatible in string " + NumberString;
 		Stack.push_back(b);
 	}
+	else {
+		if (a.type < 6) throw "Cannot use find with not-map in string " + NumberString;
+		if (b.type > 2) throw "Cannot use find from not number in string " + NumberString;
+		Stack.push_back({ 0, "" });
+	}
 }
 
-void SemanticAnalysis::Check_Uno() {
+void SemanticAnalysis::Check_Uno(int number_line) {
+	NumberString = std::to_string(number_line);
 	if (Stack.size() < 2) throw "Incorrect expression in string " + NumberString;
 	auto a = Stack.back(); Stack.pop_back();
 	auto t = Stack.back(); Stack.pop_back();
@@ -270,7 +279,8 @@ StructStack SemanticAnalysis::Pop_Stack() {
 	return tmp;
 }
 
-void SemanticAnalysis::Check_If() {
+void SemanticAnalysis::Check_If(int number_line) {
+	NumberString = std::to_string(number_line);
 	if (Stack.back().type != 0) throw "Not-bool expression cannot be in if() in string " + NumberString;
 	Stack.pop_back();
 }

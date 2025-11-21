@@ -15,6 +15,7 @@ void Parser::start() {
 }
 
 void Parser::program() {
+	semantic.Create_TID();
 	while (current_lexeme.type != 6) {
 		if (current_lexeme.value == "map") {
 			//cout << "bbbbbbbbbbbbb map\n";
@@ -23,25 +24,30 @@ void Parser::program() {
 				throw current_lexeme;
 			}
 			current_lexeme = lexer.get();
+			string type1 = current_lexeme.value;
 			type();
 			if (current_lexeme.value != ",") {
 				throw current_lexeme;
 			}
 			current_lexeme = lexer.get();
+			string type2 = current_lexeme.value;
 			type();
 			if (current_lexeme.value != ">") {
 				throw current_lexeme;
 			}
 			current_lexeme = lexer.get();
+			Lexeme lex = current_lexeme;
 			if (current_lexeme.type != 0) {
 				throw current_lexeme;
 			}
 			current_lexeme = lexer.get();
 			//cout << "current " << current_lexeme.value << "\n";
 			if (current_lexeme.value == ";") {
+				semantic.Push_ID(lex, type1, type2);
 				current_lexeme = lexer.get();
 			}
 			else if (current_lexeme.value == "=") {
+				semantic.Push_ID(lex, type1, type2);
 				map_notitle();
 				if (current_lexeme.value != ";") {
 					throw current_lexeme;
@@ -49,34 +55,40 @@ void Parser::program() {
 				current_lexeme = lexer.get();
 			}
 			else {
-				function_notitle();
+				function_notitle(lex, type1, type2);
 			}
 		}
 		else if (current_lexeme.value == "void") {
 			current_lexeme = lexer.get();
+			Lexeme lex = current_lexeme;
 			if (current_lexeme.type != 0) {
 				throw current_lexeme;
 			}
 			current_lexeme = lexer.get();
-			function_notitle();
+			function_notitle(lex, "void");
 		}
 		else {
+			string type1 = current_lexeme.value;
 			type();
 			if (current_lexeme.type != 0) {
 				throw current_lexeme;
 			}
+			Lexeme lex = current_lexeme;
 			current_lexeme = lexer.get();
 			if (current_lexeme.value == ";") {
+				semantic.Push_ID(lex, type1);
 				current_lexeme = lexer.get();
 			}
 			else if (current_lexeme.value == "=") {
-				var_notitle();
+				semantic.Push_ID(lex, type1);
+				var_notitle(lex);
 				if (current_lexeme.value != ";") {
 					throw current_lexeme;
 				}
 				current_lexeme = lexer.get();
 			}
 			else if (current_lexeme.value == "[") {
+				semantic.Push_ID(lex, "array " + type1);
 				array_notitle();
 				if (current_lexeme.value != ";") {
 					throw current_lexeme;
@@ -84,7 +96,7 @@ void Parser::program() {
 				current_lexeme = lexer.get();
 			}
 			else {
-				function_notitle();
+				function_notitle(lex, type1);
 			}
 		}
 	}
@@ -98,10 +110,13 @@ void Parser::type() {
 	return;
 }
 
-void Parser::var_notitle() {
+void Parser::var_notitle(const Lexeme& lex) {
 	if (current_lexeme.value == "=") {
+		semantic.Push_Stack(0, lex);
+		semantic.Push_Stack(-19, current_lexeme);
 		current_lexeme = lexer.get();
 		expression();
+		semantic.Check_Bin(current_lexeme.line);
 	}
 	else {
 		throw current_lexeme;
@@ -114,6 +129,10 @@ void Parser::array_notitle() {
 	}
 	current_lexeme = lexer.get();
 	expression();
+	StructStack res = semantic.Pop_Stack();
+	if (res.type != 0 && res.type != 2) {
+		throw "Incorrect expression to specify array size in string " + std::to_string(current_lexeme.line);
+	}
 	if (current_lexeme.value != "]") {
 		throw current_lexeme;
 	}
@@ -127,9 +146,17 @@ void Parser::array_notitle() {
 	}
 	current_lexeme = lexer.get();
 	expression();
+	res = semantic.Pop_Stack();
+	if (res.type != 0 && res.type != 1 && res.type != 2) {
+		throw "Incorrect expression to array element in string " + std::to_string(current_lexeme.line);
+	}
 	while (current_lexeme.value == ",") {
 		current_lexeme = lexer.get();
 		expression();
+		res = semantic.Pop_Stack();
+		if (res.type != 0 && res.type != 1 && res.type != 2) {
+			throw "Incorrect expression to array element in string " + std::to_string(current_lexeme.line);
+		}
 	}
 	if (current_lexeme.value != "}") {
 		throw current_lexeme;
@@ -138,42 +165,53 @@ void Parser::array_notitle() {
 	return;
 }
 
-void Parser::function_notitle() {
+void Parser::function_notitle(const Lexeme& lex, const string& type1, string type2 = "") {
 	if (current_lexeme.value != "(") {
 		throw current_lexeme;
 	}
 	current_lexeme = lexer.get();
+	string inner_name = lex.value;
+	semantic.Create_TID();
 	if (current_lexeme.value != ")") {
-		parameters();
+		inner_name += parameters();
 	}
 	if (current_lexeme.value != ")") {
 		throw current_lexeme;
 	}
 	current_lexeme = lexer.get();
-	block();
+	
+	semantic.New_Func(lex, inner_name, type1 + " " + type2);
+	block(0);
+	semantic.Delete_TID();
 }
 
-void Parser::parameters() {
-	parameters_description();
+string Parser::parameters() {
+	string for_return = " ";
+	for_return += parameters_description();
 	while (current_lexeme.value == ",") {
 		current_lexeme = lexer.get();
-		parameters_description();
+		for_return += " ";
+		for_return += parameters_description();
 	}
-	return;
+	return for_return;
 }
 
-void Parser::parameters_description() {
+string Parser::parameters_description() {
+	string for_return = "";
 	if (current_lexeme.value == "map") {
+		for_return = "map";
 		current_lexeme = lexer.get();
 		if (current_lexeme.value != "<") {
 			throw current_lexeme;
 		}
 		current_lexeme = lexer.get();
+		string type1 = current_lexeme.value;
 		type();
 		if (current_lexeme.value != ",") {
 			throw current_lexeme;
 		}
 		current_lexeme = lexer.get();
+		string type2 = current_lexeme.value;
 		type();
 		if (current_lexeme.value != ">") {
 			throw current_lexeme;
@@ -182,22 +220,31 @@ void Parser::parameters_description() {
 		if (current_lexeme.type != 0) {
 			throw current_lexeme;
 		}
+		semantic.Push_ID(current_lexeme, type1, type2);
 		current_lexeme = lexer.get();
+		return for_return;
 	}
 	else {
+		for_return += "number";
+		string type1 = current_lexeme.value;
 		type();
 		if (current_lexeme.type != 0) {
 			throw current_lexeme;
 		}
+		Lexeme prev = current_lexeme;
 		current_lexeme = lexer.get();
 		if (current_lexeme.value != "[") {
-			return;
+			semantic.Push_ID(prev, type1);
+			return for_return;
 		}
 		current_lexeme = lexer.get();
 		if (current_lexeme.value != "]") {
 			throw current_lexeme;
 		}
+		for_return += "[]";
 		current_lexeme = lexer.get();
+		semantic.Push_ID(prev, "array " + type1);
+		return for_return;
 	}
 }
 
@@ -216,12 +263,20 @@ void Parser::map_notitle() {
 	}
 	current_lexeme = lexer.get();
 	expression1();
+	StructStack res = semantic.Pop_Stack();
+	if (res.type != 0 && res.type != 1 && res.type != 2) {
+		throw "Incorrect expression to map element in string " + std::to_string(current_lexeme.line);
+	}
 	if (current_lexeme.value != ",") {
 		throw current_lexeme;
 	}
 	current_lexeme = lexer.get();
 	//cout << "aaaaaaaaaaaaa\n";
 	expression1();
+	res = semantic.Pop_Stack();
+	if (res.type != 0 && res.type != 1 && res.type != 2) {
+		throw "Incorrect expression to map element in string " + std::to_string(current_lexeme.line);
+	}
 	if (current_lexeme.value != "}") {
 		throw current_lexeme;
 	}
@@ -233,11 +288,19 @@ void Parser::map_notitle() {
 		}
 		current_lexeme = lexer.get();
 		expression1();
+		res = semantic.Pop_Stack();
+		if (res.type != 0 && res.type != 1 && res.type != 2) {
+			throw "Incorrect expression to map element in string " + std::to_string(current_lexeme.line);
+		}
 		if (current_lexeme.value != ",") {
 			throw current_lexeme;
 		}
 		current_lexeme = lexer.get();
 		expression1();
+		res = semantic.Pop_Stack();
+		if (res.type != 0 && res.type != 1 && res.type != 2) {
+			throw "Incorrect expression to map element in string " + std::to_string(current_lexeme.line);
+		}
 		if (current_lexeme.value != "}") {
 			throw current_lexeme;
 		}
@@ -249,7 +312,10 @@ void Parser::map_notitle() {
 	current_lexeme = lexer.get();
 }
 
-void Parser::block() {
+void Parser::block(bool is_tid_needed) {
+	if (is_tid_needed) {
+		semantic.Create_TID();
+	}
 	if (current_lexeme.value != "{") {
 		throw current_lexeme;
 	}
@@ -258,9 +324,12 @@ void Parser::block() {
 		operator_();
 	}
 	current_lexeme = lexer.get();
+	if (is_tid_needed) {
+		semantic.Delete_TID();
+	}
 }
 
-void Parser::operator_() {
+void Parser::operator_(bool is_tid_needed = 0) {
 	if (current_lexeme.value == "int" || current_lexeme.value == "float"
 		|| current_lexeme.value == "char" || current_lexeme.value == "map") {
 		description();
@@ -279,7 +348,7 @@ void Parser::operator_() {
 		for_();
 	}
 	else if (current_lexeme.value == "{") {
-		block();
+		block(is_tid_needed);
 	}
 	else if (current_lexeme.value == "print") {
 		print();
@@ -302,6 +371,18 @@ void Parser::operator_() {
 			return;
 		}
 		expression();
+		StructTf last = semantic.Get_Last_Func();
+		StructStack res = semantic.Pop_Stack();
+		bool is_ok = 0;
+		if (res.type >= 0 && res.type <= 2 && (last.type_back == "int" || last.type_back == "char" || last.type_back == "float")) {
+			is_ok = 1;
+		}
+		if (res.type >= 6 && res.type <= 8 && !(last.type_back == "int" || last.type_back == "char" || last.type_back == "float")) {
+			is_ok = 1;
+		}
+		if (!is_ok) {
+			throw "Returning value type is not correct in string " + std::to_string(current_lexeme.line);
+		}
 		if (current_lexeme.value != ";") {
 			throw current_lexeme;
 		}
@@ -343,20 +424,24 @@ void Parser::description() {
 			throw current_lexeme;
 		}
 		current_lexeme = lexer.get();
+		string type1 = current_lexeme.value;
 		type();
 		if (current_lexeme.value != ",") {
 			throw current_lexeme;
 		}
 		current_lexeme = lexer.get();
+		string type2 = current_lexeme.value;
 		type();
 		if (current_lexeme.value != ">") {
 			throw current_lexeme;
 		}
 		current_lexeme = lexer.get();
+		Lexeme lex = current_lexeme;
 		if (current_lexeme.type != 0) {
 			throw current_lexeme;
 		}
 		current_lexeme = lexer.get();
+		semantic.Push_ID(lex, type1, type2);
 		if (current_lexeme.value == ";") {
 			return;
 		}
@@ -372,19 +457,24 @@ void Parser::description() {
 		}
 	}
 	else {
+		string type1 = current_lexeme.value;
 		type();
 		if (current_lexeme.type != 0) {
 			throw current_lexeme;
 		}
+		Lexeme lex = current_lexeme;
 		current_lexeme = lexer.get();
 		if (current_lexeme.value == ";") {
 			//current_lexeme = lexer.get();
+			semantic.Push_ID(lex, type1);
 			return;
 		}
 		if (current_lexeme.value == "=") {
-			var_notitle();
+			semantic.Push_ID(lex, type1);
+			var_notitle(lex);
 		}
 		else {
+			semantic.Push_ID(lex, "array " +  type1);
 			array_notitle();
 		}
 	}
@@ -400,16 +490,17 @@ void Parser::if_() {
 	}
 	current_lexeme = lexer.get();
 	expression();
+	semantic.Check_If(current_lexeme.line);
 	if (current_lexeme.value != ")") {
 		throw current_lexeme;
 	}
 	current_lexeme = lexer.get();
-	operator_();
+	operator_(1);
 	if (current_lexeme.value != "else") {
 		return;
 	}
 	current_lexeme = lexer.get();
-	operator_();
+	operator_(1);
 }
 
 void Parser::while_() {
@@ -422,11 +513,12 @@ void Parser::while_() {
 	}
 	current_lexeme = lexer.get();
 	expression();
+	semantic.Check_If(current_lexeme.line);
 	if (current_lexeme.value != ")") {
 		throw current_lexeme;
 	}
 	current_lexeme = lexer.get();
-	operator_();
+	operator_(1);
 }
 
 void Parser::for_() {
@@ -438,6 +530,7 @@ void Parser::for_() {
 		throw current_lexeme;
 	}
 	current_lexeme = lexer.get();
+	semantic.Create_TID();
 	if (current_lexeme.value != ";") {
 		description();
 		while (current_lexeme.value == ",") {
@@ -451,6 +544,7 @@ void Parser::for_() {
 	current_lexeme = lexer.get();
 	if (current_lexeme.value != ";") {
 		expression();
+		semantic.Check_If(current_lexeme.line);
 	}
 	if (current_lexeme.value != ";") {
 		throw current_lexeme;
@@ -458,6 +552,7 @@ void Parser::for_() {
 	current_lexeme = lexer.get();
 	if (current_lexeme.value != ")") {
 		expression();
+		semantic.Pop_Stack();
 	}
 	if (current_lexeme.value != ")") {
 		throw current_lexeme;
@@ -690,7 +785,7 @@ void Parser::expression9() {
 			current_lexeme = lexer.get();
 		}
 	}
-	else if (current_lexeme.type == 21 || current_lexeme.type == 22) {
+	else if (current_lexeme.type == 21 || current_lexeme.type == 22 || current_lexeme.type == 23) {
 		current_lexeme = lexer.get();
 	}
 	else {

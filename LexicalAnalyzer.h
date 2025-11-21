@@ -27,7 +27,8 @@ using std::pair;
 
 20 - string
 21 - symbol
-22 - number
+22 - number int
+23 - number float
 */
 
 struct Lexeme {
@@ -85,7 +86,7 @@ public:
         while (p.type == 8) {
             p = this->get_lexeme();
         }
-        cout << p.value << "\n";
+        cout << p.value << " " << p.type << "\n";
         return p;
     }
 private:
@@ -308,6 +309,9 @@ private:
             }
             if (type == 2) {
                 type = type * 10 + start_type;
+                if (was_point) {
+                    ++type;
+                }
             }
             return Lexeme(type, res, line_current);
         }

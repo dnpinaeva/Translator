@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LexicalAnalyzer.h"
+#include "SemanticAnalysis.h"
 
 class Parser
 {
@@ -11,18 +12,19 @@ public:
 
 private:
 	LexicalAnalyzer lexer;
+	SemanticAnalysis semantic;
 	Lexeme current_lexeme;
 	void program();
 	void type();
-	void var_notitle();
+	void var_notitle(const Lexeme& lex);
 	void array_notitle();
-	void function_notitle();
+	void function_notitle(const Lexeme& lex, const string& type1, string type2 = "");
 	void expression();
-	void parameters();
-	void parameters_description();
-	void block();
+	string parameters();
+	string parameters_description();
+	void block(bool is_tid_needed);
 	void map_notitle();
-	void operator_();
+	void operator_(bool is_tid_needed);
 	void description();
 	void if_();
 	void for_();
