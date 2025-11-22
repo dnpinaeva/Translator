@@ -583,6 +583,7 @@ void Parser::print() {
 	}
 	else {
 		expression();
+		semantic.Pop_Stack();
 		if (current_lexeme.value != ")") {
 			throw current_lexeme;
 		}
@@ -599,6 +600,7 @@ void Parser::input() {
 		throw current_lexeme;
 	}
 	current_lexeme = lexer.get();
+	semantic.Check_ID(current_lexeme);
 	if (current_lexeme.type != 0) {
 		throw current_lexeme;
 	}
@@ -611,7 +613,10 @@ void Parser::input() {
 		throw current_lexeme;
 	}
 	current_lexeme = lexer.get();
+	int line = current_lexeme.line;
 	expression();
+	StructStack res = semantic.Pop_Stack();
+	if (res.type > 2) throw "Inside [] is an invalid type in string " + std::to_string(line);
 	if (current_lexeme.value != "]") {
 		throw current_lexeme;
 	}
@@ -626,6 +631,8 @@ void Parser::map_delete() {
 	if (current_lexeme.type != 0) {
 		throw current_lexeme;
 	}
+	string type_lex = semantic.Check_ID(current_lexeme);
+	if (type_lex[0] != 'a' && type_lex.size() > 6) return;
 	current_lexeme = lexer.get();
 	if (current_lexeme.value != ".") {
 		throw current_lexeme;
@@ -639,7 +646,10 @@ void Parser::map_delete() {
 		throw current_lexeme;
 	}
 	current_lexeme = lexer.get();
+	int line = current_lexeme.line;
 	expression();
+	StructStack res = semantic.Pop_Stack();
+	if (res.type > 2) throw "Inside [] is an invalid type in string " + std::to_string(line);
 	if (current_lexeme.value != ")") {
 		throw current_lexeme;
 	}
@@ -740,13 +750,47 @@ void Parser::expression9() {
 	}
 	else if (current_lexeme.type == 0) {
 		//cout << "aaaaaaaa";
+		Lexeme last = current_lexeme;
+		string type_lex = " ";
+		try {
+			type_lex = semantic.Check_ID(current_lexeme);
+		}
+		catch (...) {
+
+		}
+		if (type_lex == "int ") {
+			semantic.Push_Stack(0, current_lexeme);
+		}
+		else if (type_lex == "float ") {
+			semantic.Push_Stack(1, current_lexeme);
+		}
+		else if (type_lex == "char ") {
+			semantic.Push_Stack(2, current_lexeme);
+		}
+		else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "int") {
+			if (type_lex[0] == 'a') semantic.Push_Stack(3, current_lexeme);
+			else semantic.Push_Stack(6, current_lexeme);
+		}
+		else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "float") {
+			if (type_lex[0] == 'a') semantic.Push_Stack(4, current_lexeme);
+			else semantic.Push_Stack(7, current_lexeme);
+		}
+		else {
+			if (type_lex[0] == 'a') semantic.Push_Stack(5, current_lexeme);
+			else semantic.Push_Stack(8, current_lexeme);
+		}
 		current_lexeme = lexer.get();
 		if (current_lexeme.value == "++" || current_lexeme.value == "--") {
+			semantic.Push_Stack(-2 + (current_lexeme.value == "--"), current_lexeme);
+			semantic.Check_Uno(current_lexeme.line);
 			current_lexeme = lexer.get();
 		}
 		else if (current_lexeme.value == "[") {
+			semantic.Push_Stack(-1, current_lexeme);
 			current_lexeme = lexer.get();
+			int line = current_lexeme.line;
 			expression();
+			semantic.Check_Bin(line);
 			if (current_lexeme.value != "]") {
 				throw current_lexeme;
 			}
@@ -757,28 +801,48 @@ void Parser::expression9() {
 			if (current_lexeme.value != "find") {
 				throw current_lexeme;
 			}
+			semantic.Push_Stack(-20, current_lexeme);
 			current_lexeme = lexer.get();
 			if (current_lexeme.value != "(") {
 				throw current_lexeme;
 			}
 			current_lexeme = lexer.get();
+			int line = current_lexeme.line;
 			expression();
+			semantic.Check_Bin(line);
 			if (current_lexeme.value != ")") {
 				throw current_lexeme;
 			}
 			current_lexeme = lexer.get();
 		}
 		else if (current_lexeme.value == "(") {
+			int line = current_lexeme.line;
 			current_lexeme = lexer.get();
 			if (current_lexeme.value == ")") {
+				semantic.Check_Call(current_lexeme, last.value + " ");
 				current_lexeme = lexer.get();
 				return;
 			}
+			string params = "";
 			expression();
+			{
+				StructStack res = semantic.Pop_Stack();
+				if (res.type < 0) throw "Incorrect parameters in function call in string " + std::to_string(line);
+				if (res.type <= 2) params += "number ";
+				if (res.type <= 5) params += "number[] ";
+				if (res.type <= 8) params += "map ";
+			}
 			while (current_lexeme.value == ",") {
 				current_lexeme = lexer.get();
 				expression();
+				StructStack res = semantic.Pop_Stack();
+				if (res.type < 0) throw "Incorrect parameters in function call in string " + std::to_string(line);
+				if (res.type <= 2) params += "number ";
+				if (res.type <= 5) params += "number[] ";
+				if (res.type <= 8) params += "map ";
 			}
+			params.pop_back();
+			semantic.Check_Call(last, last.value + " " + params);
 			if (current_lexeme.value != ")") {
 				throw current_lexeme;
 			}
@@ -786,9 +850,23 @@ void Parser::expression9() {
 		}
 	}
 	else if (current_lexeme.type == 21 || current_lexeme.type == 22 || current_lexeme.type == 23) {
+		if (current_lexeme.type == 21) {
+			semantic.Push_Stack(2, current_lexeme);
+		} else if (current_lexeme.type == 22) {
+			semantic.Push_Stack(0, current_lexeme);
+		} else {
+			semantic.Push_Stack(1, current_lexeme);
+		}
 		current_lexeme = lexer.get();
 	}
 	else {
 		throw current_lexeme;
 	}
 }
+
+/*
+20 - string
+21 - symbol
+22 - number int
+23 - number float
+*/

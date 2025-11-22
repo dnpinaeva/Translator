@@ -26,7 +26,7 @@ std::string SemanticAnalysis::Check_ID(const Lexeme& lex) {
 	NumberString = std::to_string(lex.line);
 	for (auto& el : StackTID.back()) {
 		if (el.name == lex.value) {
-			return el.type;
+			return el.type + " " + el.type_map;
 		}
 	}
 	throw "Id " + lex.value + " doesn't exist in string " + NumberString;
@@ -262,13 +262,6 @@ void SemanticAnalysis::Check_Uno(int number_line) {
 	} if (t.type == -3) {
 		if (a.type >= 3) throw "Cannot use a-- with arrays and maps in string " + NumberString;
 		a.name = "";
-		Stack.push_back(a);
-	}
-	else if (t.type == -4) {
-		if (a.type >= 3) throw "Cannot use ++a with arrays and maps in string " + NumberString;
-		Stack.push_back(a);
-	} if (t.type == -5) {
-		if (a.type >= 3) throw "Cannot use --a with arrays and maps in string " + NumberString;
 		Stack.push_back(a);
 	}
 }
