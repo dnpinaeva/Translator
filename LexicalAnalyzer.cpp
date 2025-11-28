@@ -312,6 +312,11 @@ int main()
             cout << e.value << "\n" << "in line " << e.line << "\n";
         }
     }
+    catch (string e) {
+        cout << "\n";
+        cout << "semantic error:\n";
+        cout << e << "\n";
+    }
     cout << "finish";
 }
 

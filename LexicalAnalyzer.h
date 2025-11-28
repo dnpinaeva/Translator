@@ -87,12 +87,13 @@ public:
             p = this->get_lexeme();
         }
         cout << p.value << " " << p.type << "\n";
+        ++p.line;
         return p;
     }
 private:
 
     Lexeme get_lexeme() {
-        while (current < text + size_text && (*current == ' ' || *current == '\n' || *current == '\r')) {
+        while (current < text + size_text && (*current == ' ' || *current == '\n' || *current == '\r' || *current == '\t')) {
             if (*current == '\n') {
                 ++line_current;
             }
@@ -175,6 +176,11 @@ private:
                         break;
                     }
                     res += *current;
+                    if (*current == '\n') {
+                        is_end = 1;
+                        type = 7;
+                        break;
+                    }
                     if (*current == '"') {
                         is_end = 1;
                         ++current;

@@ -12,6 +12,7 @@ void Parser::start() {
 	if (current_lexeme.type != 6) {
 		throw current_lexeme;
 	}
+	semantic.Check_Main();
 }
 
 void Parser::program() {
@@ -165,7 +166,7 @@ void Parser::array_notitle() {
 	return;
 }
 
-void Parser::function_notitle(const Lexeme& lex, const string& type1, string type2 = "") {
+void Parser::function_notitle(const Lexeme& lex, const string& type1, string type2) {
 	if (current_lexeme.value != "(") {
 		throw current_lexeme;
 	}
@@ -321,7 +322,7 @@ void Parser::block(bool is_tid_needed) {
 	}
 	current_lexeme = lexer.get();
 	while (current_lexeme.value != "}") {
-		operator_();
+		operator_(1);
 	}
 	current_lexeme = lexer.get();
 	if (is_tid_needed) {
@@ -329,7 +330,7 @@ void Parser::block(bool is_tid_needed) {
 	}
 }
 
-void Parser::operator_(bool is_tid_needed = 0) {
+void Parser::operator_(bool is_tid_needed) {
 	if (current_lexeme.value == "int" || current_lexeme.value == "float"
 		|| current_lexeme.value == "char" || current_lexeme.value == "map") {
 		description();
@@ -367,17 +368,24 @@ void Parser::operator_(bool is_tid_needed = 0) {
 	else if (current_lexeme.value == "return") {
 		current_lexeme = lexer.get();
 		if (current_lexeme.value == ";") {
+			StructTf last = semantic.Get_Last_Func();
+			string tmp = last.type_back.substr(0, last.type_back.find(' '));
+			if (tmp != "void") {
+				throw "Returning value type is not correct in string " + std::to_string(current_lexeme.line);
+			}
 			current_lexeme = lexer.get();
 			return;
 		}
 		expression();
 		StructTf last = semantic.Get_Last_Func();
 		StructStack res = semantic.Pop_Stack();
+		string tmp = last.type_back.substr(0, last.type_back.find(' '));
+		//cout << "aaaaaaaaaaaaaaaaaaaa " << last.type_back << " " << res.type << "\n";
 		bool is_ok = 0;
-		if (res.type >= 0 && res.type <= 2 && (last.type_back == "int" || last.type_back == "char" || last.type_back == "float")) {
+		if (res.type >= 0 && res.type <= 2 && (tmp == "int" || tmp == "char" || tmp == "float")) {
 			is_ok = 1;
 		}
-		if (res.type >= 6 && res.type <= 8 && !(last.type_back == "int" || last.type_back == "char" || last.type_back == "float")) {
+		if (res.type >= 6 && res.type <= 8 && !(tmp == "int" || tmp == "char" || tmp == "float")) {
 			is_ok = 1;
 		}
 		if (!is_ok) {
@@ -400,6 +408,17 @@ void Parser::operator_(bool is_tid_needed = 0) {
 			current_lexeme = lexer.get();
 		}
 		catch (Lexeme lex) {
+			cout << "catch map delete\n";
+			lexer.current = prev;
+			current_lexeme = prev_lex;
+			//cout << prev_lex.value << " " << current_lexeme.value << "\n";
+			expression();
+			if (current_lexeme.value != ";") {
+				throw current_lexeme;
+			}
+			current_lexeme = lexer.get();
+		}
+		catch (string e) {
 			lexer.current = prev;
 			current_lexeme = prev_lex;
 			//cout << prev_lex.value << " " << current_lexeme.value << "\n";
@@ -628,12 +647,17 @@ void Parser::input() {
 }
 
 void Parser::map_delete() {
+	cout << "map delete: " << current_lexeme.value << '\n';
 	if (current_lexeme.type != 0) {
 		throw current_lexeme;
 	}
+	cout << "map delete: " << current_lexeme.value << '\n';
 	string type_lex = semantic.Check_ID(current_lexeme);
-	if (type_lex[0] != 'a' && type_lex.size() > 6) return;
+	cout << "type_lex " << type_lex << "\n";
+	if (!(type_lex[0] != 'a' && type_lex.size() > 6)) return;
+	cout << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n";
 	current_lexeme = lexer.get();
+	cout << "map delete: " << current_lexeme.value << '\n';
 	if (current_lexeme.value != ".") {
 		throw current_lexeme;
 	}
@@ -649,7 +673,7 @@ void Parser::map_delete() {
 	int line = current_lexeme.line;
 	expression();
 	StructStack res = semantic.Pop_Stack();
-	if (res.type > 2) throw "Inside [] is an invalid type in string " + std::to_string(line);
+	if (res.type > 2) throw "Inside () is an invalid type in string " + std::to_string(line);
 	if (current_lexeme.value != ")") {
 		throw current_lexeme;
 	}
@@ -660,16 +684,20 @@ void Parser::expression() {
 	//cout << "expr " << current_lexeme.value << "\n";
 	expression1();
 	while (current_lexeme.value == ",") {
+		semantic.Push_Stack(-21, current_lexeme);
 		current_lexeme = lexer.get();
 		expression1();
+		semantic.Check_Bin(current_lexeme.line);
 	}
 }
 
 void Parser::expression1() {
 	expression2();
-	while (current_lexeme.value == "=") {
+	if (current_lexeme.value == "=") {
+		semantic.Push_Stack(-19, current_lexeme);
 		current_lexeme = lexer.get();
 		expression2();
+		semantic.Check_Bin(current_lexeme.line);
 	}
 }
 
@@ -677,8 +705,10 @@ void Parser::expression2() {
 	//cout << "expr 2";
 	expression3();
 	while (current_lexeme.value == "||") {
+		semantic.Push_Stack(-18, current_lexeme);
 		current_lexeme = lexer.get();
 		expression3();
+		semantic.Check_Bin(current_lexeme.line);
 	}
 }
 
@@ -686,8 +716,10 @@ void Parser::expression3() {
 	//cout << "expr 3";
 	expression4();
 	while (current_lexeme.value == "&&") {
+		semantic.Push_Stack(-17, current_lexeme);
 		current_lexeme = lexer.get();
 		expression4();
+		semantic.Check_Bin(current_lexeme.line);
 	}
 }
 
@@ -695,8 +727,15 @@ void Parser::expression4() {
 	//cout << "expr 4";
 	expression5();
 	if (current_lexeme.value == "==" || current_lexeme.value == "!=") {
+		if (current_lexeme.value == "==") {
+			semantic.Push_Stack(-11, current_lexeme);
+		}
+		if (current_lexeme.value == "!=") {
+			semantic.Push_Stack(-12, current_lexeme);
+		}
 		current_lexeme = lexer.get();
 		expression5();
+		semantic.Check_Bin(current_lexeme.line);
 	}
 }
 
@@ -704,8 +743,21 @@ void Parser::expression5() {
 	//cout << "expr 5";
 	expression6();
 	if (current_lexeme.value == ">" || current_lexeme.value == "<" || current_lexeme.value == ">=" || current_lexeme.value == "<=") {
+		if (current_lexeme.value == ">") {
+			semantic.Push_Stack(-13, current_lexeme);
+		}
+		if (current_lexeme.value == "<") {
+			semantic.Push_Stack(-14, current_lexeme);
+		}
+		if (current_lexeme.value == ">=") {
+			semantic.Push_Stack(-15, current_lexeme);
+		}
+		if (current_lexeme.value == "<=") {
+			semantic.Push_Stack(-16, current_lexeme);
+		}
 		current_lexeme = lexer.get();
 		expression6();
+		semantic.Check_Bin(current_lexeme.line);
 	}
 }
 
@@ -713,8 +765,15 @@ void Parser::expression6() {
 	//cout << "expr 6";
 	expression7();
 	while (current_lexeme.value == "+" || current_lexeme.value == "-") {
+		if (current_lexeme.value == "+") {
+			semantic.Push_Stack(-6, current_lexeme);
+		}
+		if (current_lexeme.value == "-") {
+			semantic.Push_Stack(-7, current_lexeme);
+		}
 		current_lexeme = lexer.get();
 		expression7();
+		semantic.Check_Bin(current_lexeme.line);
 	}
 }
 
@@ -722,16 +781,39 @@ void Parser::expression7() {
 	//cout << "expr 7";
 	expression8();
 	while (current_lexeme.value == "*" || current_lexeme.value == "/" || current_lexeme.value == "%") {
+		if (current_lexeme.value == "*") {
+			semantic.Push_Stack(-8, current_lexeme);
+		}
+		if (current_lexeme.value == "/") {
+			semantic.Push_Stack(-9, current_lexeme);
+		}
+		if (current_lexeme.value == "%") {
+			semantic.Push_Stack(-23, current_lexeme);
+		}
 		current_lexeme = lexer.get();
 		expression8();
+		semantic.Check_Bin(current_lexeme.line);
 	}
 }
 
 void Parser::expression8() {
 	//cout << "expr 8";
 	if (current_lexeme.value == "!" || current_lexeme.value == "-" || current_lexeme.value == "++" || current_lexeme.value == "--") {
+		if (current_lexeme.value == "!") {
+			semantic.Push_Stack(-10, current_lexeme);
+		}
+		if (current_lexeme.value == "-") {
+			semantic.Push_Stack(-22, current_lexeme);
+		}
+		if (current_lexeme.value == "++") {
+			semantic.Push_Stack(-4, current_lexeme);
+		}
+		if (current_lexeme.value == "--") {
+			semantic.Push_Stack(-5, current_lexeme);
+		}
 		current_lexeme = lexer.get();
 		expression9();
+		semantic.Check_Uno(current_lexeme.line);
 	}
 	else {
 		expression9();
@@ -752,40 +834,71 @@ void Parser::expression9() {
 		//cout << "aaaaaaaa";
 		Lexeme last = current_lexeme;
 		string type_lex = " ";
+		cout << "current_lexeme: " << "\"" << current_lexeme.value << "\"" << current_lexeme.type << "\n";
 		try {
 			type_lex = semantic.Check_ID(current_lexeme);
+			cout << "type: " << type_lex << '\n';
 		}
-		catch (...) {
+		catch (std::string e) {
 
-		}
-		if (type_lex == "int ") {
-			semantic.Push_Stack(0, current_lexeme);
-		}
-		else if (type_lex == "float ") {
-			semantic.Push_Stack(1, current_lexeme);
-		}
-		else if (type_lex == "char ") {
-			semantic.Push_Stack(2, current_lexeme);
-		}
-		else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "int") {
-			if (type_lex[0] == 'a') semantic.Push_Stack(3, current_lexeme);
-			else semantic.Push_Stack(6, current_lexeme);
-		}
-		else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "float") {
-			if (type_lex[0] == 'a') semantic.Push_Stack(4, current_lexeme);
-			else semantic.Push_Stack(7, current_lexeme);
-		}
-		else {
-			if (type_lex[0] == 'a') semantic.Push_Stack(5, current_lexeme);
-			else semantic.Push_Stack(8, current_lexeme);
 		}
 		current_lexeme = lexer.get();
 		if (current_lexeme.value == "++" || current_lexeme.value == "--") {
+			if (type_lex == "int ") {
+				semantic.Push_Stack(0, last);
+			}
+			else if (type_lex == "float ") {
+				semantic.Push_Stack(1, last);
+			}
+			else if (type_lex == "char ") {
+				semantic.Push_Stack(2, last);
+			}
+			else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "int " || type_lex.substr(type_lex.find(" ", 0) + 1) == "int") {
+				if (type_lex[0] == 'a') semantic.Push_Stack(3, last);
+				else semantic.Push_Stack(6, last);
+			}
+			else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "float " || type_lex.substr(type_lex.find(" ", 0) + 1) == "float") {
+				if (type_lex[0] == 'a') semantic.Push_Stack(4, last);
+				else semantic.Push_Stack(7, last);
+			}
+			else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "char " || type_lex.substr(type_lex.find(" ", 0) + 1) == "char") {
+				if (type_lex[0] == 'a') semantic.Push_Stack(5, last);
+				else semantic.Push_Stack(8, last);
+			}
+			else {
+				cout << type_lex << "\n";
+				throw string("error type");
+			}
 			semantic.Push_Stack(-2 + (current_lexeme.value == "--"), current_lexeme);
 			semantic.Check_Uno(current_lexeme.line);
 			current_lexeme = lexer.get();
 		}
 		else if (current_lexeme.value == "[") {
+			if (type_lex == "int ") {
+				semantic.Push_Stack(0, last);
+			}
+			else if (type_lex == "float ") {
+				semantic.Push_Stack(1, last);
+			}
+			else if (type_lex == "char ") {
+				semantic.Push_Stack(2, last);
+			}
+			else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "int " || type_lex.substr(type_lex.find(" ", 0) + 1) == "int") {
+				if (type_lex[0] == 'a') semantic.Push_Stack(3, last);
+				else semantic.Push_Stack(6, last);
+			}
+			else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "float " || type_lex.substr(type_lex.find(" ", 0) + 1) == "float") {
+				if (type_lex[0] == 'a') semantic.Push_Stack(4, last);
+				else semantic.Push_Stack(7, last);
+			}
+			else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "char " || type_lex.substr(type_lex.find(" ", 0) + 1) == "char") {
+				if (type_lex[0] == 'a') semantic.Push_Stack(5, last);
+				else semantic.Push_Stack(8, last);
+			}
+			else {
+				cout << type_lex << "\n";
+				throw string("error type");
+			}
 			semantic.Push_Stack(-1, current_lexeme);
 			current_lexeme = lexer.get();
 			int line = current_lexeme.line;
@@ -797,6 +910,32 @@ void Parser::expression9() {
 			current_lexeme = lexer.get();
 		}
 		else if (current_lexeme.value == ".") {
+			cout << "type: \"" << type_lex.substr(type_lex.find(" ", 0) + 1) << "\"" << "\n";
+			if (type_lex == "int ") {
+				semantic.Push_Stack(0, last);
+			}
+			else if (type_lex == "float ") {
+				semantic.Push_Stack(1, last);
+			}
+			else if (type_lex == "char ") {
+				semantic.Push_Stack(2, last);
+			}
+			else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "int " || type_lex.substr(type_lex.find(" ", 0) + 1) == "int") {
+				if (type_lex[0] == 'a') semantic.Push_Stack(3, last);
+				else semantic.Push_Stack(6, last);
+			}
+			else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "float " || type_lex.substr(type_lex.find(" ", 0) + 1) == "float") {
+				if (type_lex[0] == 'a') semantic.Push_Stack(4, last);
+				else semantic.Push_Stack(7, last);
+			}
+			else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "char " || type_lex.substr(type_lex.find(" ", 0) + 1) == "char") {
+				if (type_lex[0] == 'a') semantic.Push_Stack(5, last);
+				else semantic.Push_Stack(8, last);
+			}
+			else {
+				cout << type_lex << "\n";
+				throw string("error type");
+			}
 			current_lexeme = lexer.get();
 			if (current_lexeme.value != "find") {
 				throw current_lexeme;
@@ -819,34 +958,113 @@ void Parser::expression9() {
 			int line = current_lexeme.line;
 			current_lexeme = lexer.get();
 			if (current_lexeme.value == ")") {
-				semantic.Check_Call(current_lexeme, last.value + " ");
+				type_lex = semantic.Check_Call(current_lexeme, last.value);
+				if (type_lex == "int ") {
+					semantic.Push_Stack(0, last);
+				}
+				else if (type_lex == "float ") {
+					semantic.Push_Stack(1, last);
+				}
+				else if (type_lex == "char ") {
+					semantic.Push_Stack(2, last);
+				}
+				else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "int " || type_lex.substr(type_lex.find(" ", 0) + 1) == "int") {
+					if (type_lex[0] == 'a') semantic.Push_Stack(3, last);
+					else semantic.Push_Stack(6, last);
+				}
+				else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "float " || type_lex.substr(type_lex.find(" ", 0) + 1) == "float") {
+					if (type_lex[0] == 'a') semantic.Push_Stack(4, last);
+					else semantic.Push_Stack(7, last);
+				}
+				else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "char " || type_lex.substr(type_lex.find(" ", 0) + 1) == "char") {
+					if (type_lex[0] == 'a') semantic.Push_Stack(5, last);
+					else semantic.Push_Stack(8, last);
+				}
+				else {
+					cout << type_lex << "\n";
+					throw string("error type");
+				}
 				current_lexeme = lexer.get();
 				return;
 			}
 			string params = "";
-			expression();
+			expression1();
 			{
 				StructStack res = semantic.Pop_Stack();
 				if (res.type < 0) throw "Incorrect parameters in function call in string " + std::to_string(line);
-				if (res.type <= 2) params += "number ";
-				if (res.type <= 5) params += "number[] ";
-				if (res.type <= 8) params += "map ";
+				else if (res.type <= 2) params += "number ";
+				else if (res.type <= 5) params += "number[] ";
+				else if (res.type <= 8) params += "map ";
 			}
 			while (current_lexeme.value == ",") {
 				current_lexeme = lexer.get();
-				expression();
+				expression1();
 				StructStack res = semantic.Pop_Stack();
 				if (res.type < 0) throw "Incorrect parameters in function call in string " + std::to_string(line);
-				if (res.type <= 2) params += "number ";
-				if (res.type <= 5) params += "number[] ";
-				if (res.type <= 8) params += "map ";
+				else if (res.type <= 2) params += "number ";
+				else if (res.type <= 5) params += "number[] ";
+				else if (res.type <= 8) params += "map ";
 			}
 			params.pop_back();
-			semantic.Check_Call(last, last.value + " " + params);
+			type_lex = semantic.Check_Call(last, last.value + " " + params);
+			cout << "type: \"" << type_lex.substr(type_lex.find(" ", 0) + 1) << "\"" << "\n";
+			if (type_lex == "int ") {
+				semantic.Push_Stack(0, last);
+			}
+			else if (type_lex == "float ") {
+				semantic.Push_Stack(1, last);
+			}
+			else if (type_lex == "char ") {
+				semantic.Push_Stack(2, last);
+			}
+			else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "int " || type_lex.substr(type_lex.find(" ", 0) + 1) == "int") {
+				if (type_lex[0] == 'a') semantic.Push_Stack(3, last);
+				else semantic.Push_Stack(6, last);
+			}
+			else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "float " || type_lex.substr(type_lex.find(" ", 0) + 1) == "float") {
+				if (type_lex[0] == 'a') semantic.Push_Stack(4, last);
+				else semantic.Push_Stack(7, last);
+			}
+			else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "char " || type_lex.substr(type_lex.find(" ", 0) + 1) == "char") {
+				if (type_lex[0] == 'a') semantic.Push_Stack(5, last);
+				else semantic.Push_Stack(8, last);
+			}
+			else {
+				cout << type_lex << "\n";
+				throw string("error type");
+			}
 			if (current_lexeme.value != ")") {
 				throw current_lexeme;
 			}
 			current_lexeme = lexer.get();
+		}
+		else {
+			cout << "type: \"" << type_lex.substr(type_lex.find(" ", 0) + 1) << "\"" << "\n";
+			if (type_lex == "int ") {
+				semantic.Push_Stack(0, last);
+			}
+			else if (type_lex == "float ") {
+				semantic.Push_Stack(1, last);
+			}
+			else if (type_lex == "char ") {
+				semantic.Push_Stack(2, last);
+			}
+			else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "int " || type_lex.substr(type_lex.find(" ", 0) + 1) == "int") {
+				if (type_lex[0] == 'a') semantic.Push_Stack(3, last);
+				else semantic.Push_Stack(6, last);
+			}
+			else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "float " || type_lex.substr(type_lex.find(" ", 0) + 1) == "float") {
+				if (type_lex[0] == 'a') semantic.Push_Stack(4, last);
+				else semantic.Push_Stack(7, last);
+			}
+			else if (type_lex.substr(type_lex.find(" ", 0) + 1) == "char " || type_lex.substr(type_lex.find(" ", 0) + 1) == "char") {
+				if (type_lex[0] == 'a') semantic.Push_Stack(5, last);
+				else semantic.Push_Stack(8, last);
+			}
+			else {
+				cout << type_lex << "\n";
+				throw string("error type");
+			}
 		}
 	}
 	else if (current_lexeme.type == 21 || current_lexeme.type == 22 || current_lexeme.type == 23) {

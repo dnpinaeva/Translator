@@ -24,7 +24,7 @@ private:
 	string parameters_description();
 	void block(bool is_tid_needed);
 	void map_notitle();
-	void operator_(bool is_tid_needed);
+	void operator_(bool is_tid_needed = 0);
 	void description();
 	void if_();
 	void for_();

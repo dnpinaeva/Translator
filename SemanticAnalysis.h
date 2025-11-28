@@ -58,6 +58,7 @@ public:
 	void Check_Bin(int number_line);
 	void Check_Uno(int number_line);
 	void Check_If(int number_line);
+	void Check_Main();
 	StructTf Get_Last_Func() {
 		return TF.back();
 	}

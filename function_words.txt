@@ -1,3 +1,13 @@
-Node
-for
+int
+float
+char
+void
+map
+print
+input
+delete
 if
+else
+while
+for
+find

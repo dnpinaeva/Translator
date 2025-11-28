@@ -6,11 +6,11 @@ void SemanticAnalysis::Create_TID() {
 	StackTID.push_back({});
 }
 
-void SemanticAnalysis::Push_ID(const Lexeme& lex, const std::string& type, std::string type2 = "") {
+void SemanticAnalysis::Push_ID(const Lexeme& lex, const std::string& type, std::string type2) {
 	StructTid new_id(lex.value, type, type2);
 	NumberString = std::to_string(lex.line);
 	for (auto& el : StackTID.back()) {
-		if (el == new_id) {
+		if (el.name == new_id.name) {
 			throw "Id " + lex.value + " already exists in string " + NumberString;
 		}
 	}
@@ -24,9 +24,11 @@ void SemanticAnalysis::Delete_TID() {
 
 std::string SemanticAnalysis::Check_ID(const Lexeme& lex) {
 	NumberString = std::to_string(lex.line);
-	for (auto& el : StackTID.back()) {
-		if (el.name == lex.value) {
-			return el.type + " " + el.type_map;
+	for (auto& cur : StackTID) {
+		for (auto& el : cur) {
+			if (el.name == lex.value) {
+				return el.type + " " + el.type_map;
+			}
 		}
 	}
 	throw "Id " + lex.value + " doesn't exist in string " + NumberString;
@@ -45,7 +47,9 @@ void SemanticAnalysis::New_Func(const Lexeme& lex, const std::string& inner_name
 
 std::string SemanticAnalysis::Check_Call(const Lexeme& lex, const std::string& inner_name) {
 	NumberString = std::to_string(lex.line);
+	cout << "check_call: \"" << inner_name << "\"\n";
 	for (auto& el : TF) {
+		cout << "\"" << el.inner_name << "\"" << "\n";
 		if (el.inner_name == inner_name) {
 			return el.type_back;
 		}
@@ -56,6 +60,24 @@ std::string SemanticAnalysis::Check_Call(const Lexeme& lex, const std::string& i
 void SemanticAnalysis::Push_Stack(int type, Lexeme lex) {
 	if (lex.type != 0) lex.value = "";
 	Stack.push_back({ type, lex.value});
+}
+
+void SemanticAnalysis::Check_Main() {
+	bool f = 0;
+	for (auto& el : TF) {
+		if (el.name == "main") {
+			if (f) {
+				throw std::string("Function main is already exist");
+			}
+			f = 1;
+			if (el.name != el.inner_name) {
+				throw std::string("Function main must not have parameters");
+			}
+			if (el.type_back != "int ") {
+				throw std::string("Function main must return int");
+			}
+		}
+	}
 }
 
 
@@ -80,6 +102,9 @@ a-- -3
 || -18
 = -19
 find -20
+, - -21
+- -22
+% -23
 
 0 - int
 1 - float
@@ -102,7 +127,7 @@ void SemanticAnalysis::Check_Bin(int number_line) {
 	if (t.type == -1) {
 		if (a.type < 3) throw "Cannot dereference a non-array(non-map) in string " + NumberString;
 		if (b.type != 0 && b.type != 2 && a.type < 6) throw "Expression in [] is incorrect in string " + NumberString;
-		Stack.push_back({ a.type % 3, "" });
+		Stack.push_back({ a.type % 3, a.name });
 		return;
 	}
 	else if (t.type == -6) {
@@ -235,13 +260,27 @@ void SemanticAnalysis::Check_Bin(int number_line) {
 	}
 	else if (t.type == -19) {
 		if (a.name == "") throw "r-value cannot be be to the left of = in string " + NumberString;
-		if ((a.type >= 3) ^ (b.type >= 3)) throw "Array and number/identifier are not compatible in string " + NumberString;
+		if ((a.type >= 3) ^ (b.type >= 3)) throw "Array/map and number are not compatible in string " + NumberString;
+		if ((a.type >= 6) ^ (b.type >= 6)) throw "Array and map are not compatible in string " + NumberString;
+		b.name = "";
 		Stack.push_back(b);
 	}
-	else {
+	else if (t.type == -20) {
 		if (a.type < 6) throw "Cannot use find with not-map in string " + NumberString;
 		if (b.type > 2) throw "Cannot use find from not number in string " + NumberString;
 		Stack.push_back({ 0, "" });
+	}
+	else if (t.type == -21) {
+		Stack.push_back(b);
+	}
+	else {
+		if (a.type >= 3 || b.type >= 3 || a.type == 1 || b.type == 1) throw "Cannot use % with float numbers, arrays and maps in string " + NumberString;
+		if (a.type == 0 || b.type == 0) {
+			Stack.push_back({ 0, "" });
+		}
+		else {
+			Stack.push_back({ 2, "" });
+		}
 	}
 }
 
@@ -259,9 +298,23 @@ void SemanticAnalysis::Check_Uno(int number_line) {
 		if (a.type >= 3) throw "Cannot use a++ with arrays and maps in string " + NumberString;
 		a.name = "";
 		Stack.push_back(a);
-	} if (t.type == -3) {
+	} else if (t.type == -3) {
 		if (a.type >= 3) throw "Cannot use a-- with arrays and maps in string " + NumberString;
 		a.name = "";
+		Stack.push_back(a);
+	}
+	else if (t.type == -4) {
+		if (a.type >= 3) throw "Cannot use ++a with arrays and maps in string " + NumberString;
+		if (a.name == "") throw "Cannot use ++a with r-value " + NumberString;
+		Stack.push_back(a);
+	}
+	else if (t.type == -5) {
+		if (a.type >= 3) throw "Cannot use --a with arrays and maps in string " + NumberString;
+		if (a.name == "") throw "Cannot use --a with r-value " + NumberString;
+		Stack.push_back(a);
+	}
+	else if (t.type == -22) {
+		if (a.type >= 3) throw "Cannot use -a with arrays and maps in string " + NumberString;
 		Stack.push_back(a);
 	}
 }
