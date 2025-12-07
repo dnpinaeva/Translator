@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LexicalAnalyzer.h"
+#include "Treap.h"
 
 #include <string>
 #include <vector>
@@ -15,9 +16,28 @@ TID type:
 5 - array char
 */
 
+struct StructValue {
+	int value_int;
+	float value_float;
+	char value_char;
+	vector<int> value_array_int;
+	vector<float> value_array_float;
+	vector<char> value_array_char;
+	Treap<int, int> value_int_int;
+	Treap<int, float> value_int_float;
+	Treap<int, char> value_int_char;
+	Treap<float, int> value_float_int;
+	Treap<float, float> value_float_float;
+	Treap<float, char> value_float_char;
+	Treap<char, int> value_char_int;
+	Treap<char, float> value_char_float;
+	Treap<char, char> value_char_char;
+};
+
 struct StructTid {
 	std::string name, type, type_map;
-	StructTid(const std::string& name, const std::string& type, const std::string& type2) : name(name), type(type), type_map(type2) {}
+	StructValue value;
+	StructTid(const std::string& name, const std::string& type, const std::string& type2) : name(name), type(type), type_map(type2), value(value) {}
 	bool operator==(const StructTid& other) const {
 		return name == other.name && type == other.type;
 	}
