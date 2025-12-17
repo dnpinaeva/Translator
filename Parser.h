@@ -20,13 +20,13 @@ private:
 	void program();
 	void type();
 	void var_notitle(const Lexeme& lex);
-	void array_notitle();
+	void array_notitle(const string& name);
 	void function_notitle(const Lexeme& lex, const string& type1, string type2 = "");
 	void expression();
 	string parameters();
 	string parameters_description();
 	void block(bool is_tid_needed);
-	void map_notitle();
+	void map_notitle(const string& name);
 	void operator_(bool is_tid_needed = 0);
 	void description();
 	void if_();

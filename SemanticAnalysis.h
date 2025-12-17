@@ -125,8 +125,8 @@ public:
 	void New_Func(const Lexeme& name, const std::string& inner_name, const std::string& type);
 	std::string Check_Call(const Lexeme& name, const std::string& inner_name);
 	void Push_Stack(int type, Lexeme lex);
-	void Check_Bin(int number_line);
-	void Check_Uno(int number_line);
+	void Check_Bin(int number_line, Poliz* where);
+	void Check_Uno(int number_line, Poliz* where);
 	void Check_If(int number_line);
 	void Check_Main();
 	StructTf Get_Last_Func() {

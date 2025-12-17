@@ -34,6 +34,7 @@ void SemanticAnalysis::Delete_TID() {
 }
 
 std::string SemanticAnalysis::Check_ID(const Lexeme& lex) {
+	if (lex.type != 0) throw lex.value + " is not a name in string " + NumberString;
 	NumberString = std::to_string(lex.line);
 	for (int i = (int)StackTID.size() - 1; i >= 0; --i) {
 		for (auto& el : StackTID[i]) {
@@ -128,7 +129,7 @@ find -20
 8 - map char
 */
 
-void SemanticAnalysis::Check_Bin(int number_line) {
+void SemanticAnalysis::Check_Bin(int number_line, Poliz* where) {
 	NumberString = std::to_string(number_line);
 	if (Stack.size() < 3) throw "Incorrect expression in string " + NumberString;
 	auto b = Stack.back(); Stack.pop_back();
@@ -139,10 +140,22 @@ void SemanticAnalysis::Check_Bin(int number_line) {
 		if (a.type < 3) throw "Cannot dereference a non-array(non-map) in string " + NumberString;
 		if (b.type != 0 && b.type != 2 && a.type < 6) throw "Expression in [] is incorrect in string " + NumberString;
 		Stack.push_back({ a.type % 3, a.name });
+		{
+			StructPoliz polka;
+			polka.name = "[]";
+			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
+		}
 		return;
 	}
 	else if (t.type == -6) {
 		if (a.type >= 3 || b.type >= 3) throw "Cannot use + with arrays and maps in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "+";
+			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
+		}
 		if (a.type == 1 || b.type == 1) {
 			Stack.push_back({ 1, "" });
 		}
@@ -155,6 +168,12 @@ void SemanticAnalysis::Check_Bin(int number_line) {
 	}
 	else if (t.type == -7) {
 		if (a.type >= 3 || b.type >= 3) throw "Cannot use - with arrays and maps in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "-";
+			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
+		}
 		if (a.type == 1 || b.type == 1) {
 			Stack.push_back({ 1, "" });
 		}
@@ -167,6 +186,12 @@ void SemanticAnalysis::Check_Bin(int number_line) {
 	}
 	else if (t.type == -8) {
 		if (a.type >= 3 || b.type >= 3) throw "Cannot use * with arrays and maps in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "*";
+			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
+		}
 		if (a.type == 1 || b.type == 1) {
 			Stack.push_back({ 1, "" });
 		}
@@ -179,6 +204,12 @@ void SemanticAnalysis::Check_Bin(int number_line) {
 	}
 	else if (t.type == -9) {
 		if (a.type >= 3 || b.type >= 3) throw "Cannot use / with arrays and maps in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "/";
+			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
+		}
 		if (a.type == 1 || b.type == 1) {
 			Stack.push_back({ 1, "" });
 		}
@@ -191,6 +222,12 @@ void SemanticAnalysis::Check_Bin(int number_line) {
 	}
 	else if (t.type == -11) {
 		if (a.type >= 3 || b.type >= 3) throw "Cannot use == with arrays and maps in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "==";
+			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
+		}
 		if (a.type == 1 || b.type == 1) {
 			Stack.push_back({ 0, "" });
 		}
@@ -203,6 +240,12 @@ void SemanticAnalysis::Check_Bin(int number_line) {
 	}
 	else if (t.type == -12) {
 		if (a.type >= 3 || b.type >= 3) throw "Cannot use != with arrays and maps in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "!=";
+			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
+		}
 		if (a.type == 1 || b.type == 1) {
 			Stack.push_back({ 0,  "" });
 		}
@@ -215,6 +258,12 @@ void SemanticAnalysis::Check_Bin(int number_line) {
 	}
 	else if (t.type == -13) {
 		if (a.type >= 3 || b.type >= 3) throw "Cannot use > with arrays and maps in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = ">";
+			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
+		}
 		if (a.type == 1 || b.type == 1) {
 			Stack.push_back({ 0, "" });
 		}
@@ -227,6 +276,12 @@ void SemanticAnalysis::Check_Bin(int number_line) {
 	}
 	else if (t.type == -14) {
 		if (a.type >= 3 || b.type >= 3) throw "Cannot use < with arrays and maps in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "<";
+			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
+		}
 		if (a.type == 1 || b.type == 1) {
 			Stack.push_back({ 0, "" });
 		}
@@ -239,6 +294,12 @@ void SemanticAnalysis::Check_Bin(int number_line) {
 	}
 	else if (t.type == -15) {
 		if (a.type >= 3 || b.type >= 3) throw "Cannot use >= with arrays and maps in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = ">=";
+			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
+		}
 		if (a.type == 1 || b.type == 1) {
 			Stack.push_back({ 0, "" });
 		}
@@ -251,6 +312,11 @@ void SemanticAnalysis::Check_Bin(int number_line) {
 	}
 	else if (t.type == -16) {
 		if (a.type >= 3 || b.type >= 3) throw "Cannot use <= with arrays and maps in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "<=";
+			polka.type = TypePoliz::plus_;
+		}
 		if (a.type == 1 || b.type == 1) {
 			Stack.push_back({ 0, "" });
 		}
@@ -263,29 +329,59 @@ void SemanticAnalysis::Check_Bin(int number_line) {
 	}
 	else if (t.type == -17) {
 		if (a.type || b.type) throw "Cannot use && with non-bool arguments in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "&&";
+			polka.type = TypePoliz::plus_;
+		}
 		Stack.push_back({ 0, "" });
 	}
 	else if (t.type == -18) {
 		if (a.type || b.type) throw "Cannot use || with non-bool arguments in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "||";
+			polka.type = TypePoliz::plus_;
+		}
 		Stack.push_back({ 0, "" });
 	}
 	else if (t.type == -19) {
 		if (a.name == "") throw "r-value cannot be be to the left of = in string " + NumberString;
 		if ((a.type >= 3) ^ (b.type >= 3)) throw "Array/map and number are not compatible in string " + NumberString;
 		if ((a.type >= 6) ^ (b.type >= 6)) throw "Array and map are not compatible in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "=";
+			polka.type = TypePoliz::plus_;
+		}
 		b.name = "";
 		Stack.push_back(b);
 	}
 	else if (t.type == -20) {
 		if (a.type < 6) throw "Cannot use find with not-map in string " + NumberString;
 		if (b.type > 2) throw "Cannot use find from not number in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "find";
+			polka.type = TypePoliz::plus_;
+		}
 		Stack.push_back({ 0, "" });
 	}
 	else if (t.type == -21) {
+		{
+			StructPoliz polka;
+			polka.name = ",";
+			polka.type = TypePoliz::plus_;
+		}
 		Stack.push_back(b);
 	}
 	else {
 		if (a.type >= 3 || b.type >= 3 || a.type == 1 || b.type == 1) throw "Cannot use % with float numbers, arrays and maps in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "%";
+			polka.type = TypePoliz::plus_;
+		}
 		if (a.type == 0 || b.type == 0) {
 			Stack.push_back({ 0, "" });
 		}
@@ -295,7 +391,7 @@ void SemanticAnalysis::Check_Bin(int number_line) {
 	}
 }
 
-void SemanticAnalysis::Check_Uno(int number_line) {
+void SemanticAnalysis::Check_Uno(int number_line, Poliz* where) {
 	NumberString = std::to_string(number_line);
 	if (Stack.size() < 2) throw "Incorrect expression in string " + NumberString;
 	auto a = Stack.back(); Stack.pop_back();
@@ -303,29 +399,59 @@ void SemanticAnalysis::Check_Uno(int number_line) {
 	if (!(t.type >= 0 || t.type == -10 || (t.type >= -2 && t.type <= -5) || a.type < 0)) throw "Incorrect expression in string " + NumberString;
 	if (t.type == -10) {
 		if (a.type != 0) throw "Cannot use ! with not bool expression in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "!";
+			polka.type = TypePoliz::plus_;
+		}
 		Stack.push_back(a);
 	}
 	else if (t.type == -2) {
 		if (a.type >= 3) throw "Cannot use a++ with arrays and maps in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "a++";
+			polka.type = TypePoliz::plus_;
+		}
 		a.name = "";
 		Stack.push_back(a);
 	} else if (t.type == -3) {
 		if (a.type >= 3) throw "Cannot use a-- with arrays and maps in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "a--";
+			polka.type = TypePoliz::plus_;
+		}
 		a.name = "";
 		Stack.push_back(a);
 	}
 	else if (t.type == -4) {
 		if (a.type >= 3) throw "Cannot use ++a with arrays and maps in string " + NumberString;
 		if (a.name == "") throw "Cannot use ++a with r-value " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "++a";
+			polka.type = TypePoliz::plus_;
+		}
 		Stack.push_back(a);
 	}
 	else if (t.type == -5) {
 		if (a.type >= 3) throw "Cannot use --a with arrays and maps in string " + NumberString;
 		if (a.name == "") throw "Cannot use --a with r-value " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "--a";
+			polka.type = TypePoliz::plus_;
+		}
 		Stack.push_back(a);
 	}
 	else if (t.type == -22) {
 		if (a.type >= 3) throw "Cannot use -a with arrays and maps in string " + NumberString;
+		{
+			StructPoliz polka;
+			polka.name = "-a";
+			polka.type = TypePoliz::plus_;
+		}
 		Stack.push_back(a);
 	}
 }
