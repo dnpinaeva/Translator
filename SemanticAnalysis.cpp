@@ -316,6 +316,7 @@ void SemanticAnalysis::Check_Bin(int number_line, Poliz* where) {
 			StructPoliz polka;
 			polka.name = "<=";
 			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
 		}
 		if (a.type == 1 || b.type == 1) {
 			Stack.push_back({ 0, "" });
@@ -333,6 +334,7 @@ void SemanticAnalysis::Check_Bin(int number_line, Poliz* where) {
 			StructPoliz polka;
 			polka.name = "&&";
 			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
 		}
 		Stack.push_back({ 0, "" });
 	}
@@ -342,6 +344,7 @@ void SemanticAnalysis::Check_Bin(int number_line, Poliz* where) {
 			StructPoliz polka;
 			polka.name = "||";
 			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
 		}
 		Stack.push_back({ 0, "" });
 	}
@@ -349,10 +352,13 @@ void SemanticAnalysis::Check_Bin(int number_line, Poliz* where) {
 		if (a.name == "") throw "r-value cannot be be to the left of = in string " + NumberString;
 		if ((a.type >= 3) ^ (b.type >= 3)) throw "Array/map and number are not compatible in string " + NumberString;
 		if ((a.type >= 6) ^ (b.type >= 6)) throw "Array and map are not compatible in string " + NumberString;
+		// if (a.name == "counter") cout << "AAAAAAAAAAAAA " << a.name << " " << b.name << std::endl;
 		{
 			StructPoliz polka;
 			polka.name = "=";
 			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
+			//cout << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa " << "CheckBin-19\n";
 		}
 		b.name = "";
 		Stack.push_back(b);
@@ -364,6 +370,7 @@ void SemanticAnalysis::Check_Bin(int number_line, Poliz* where) {
 			StructPoliz polka;
 			polka.name = "find";
 			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
 		}
 		Stack.push_back({ 0, "" });
 	}
@@ -372,6 +379,7 @@ void SemanticAnalysis::Check_Bin(int number_line, Poliz* where) {
 			StructPoliz polka;
 			polka.name = ",";
 			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
 		}
 		Stack.push_back(b);
 	}
@@ -381,6 +389,7 @@ void SemanticAnalysis::Check_Bin(int number_line, Poliz* where) {
 			StructPoliz polka;
 			polka.name = "%";
 			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
 		}
 		if (a.type == 0 || b.type == 0) {
 			Stack.push_back({ 0, "" });
@@ -396,23 +405,27 @@ void SemanticAnalysis::Check_Uno(int number_line, Poliz* where) {
 	if (Stack.size() < 2) throw "Incorrect expression in string " + NumberString;
 	auto a = Stack.back(); Stack.pop_back();
 	auto t = Stack.back(); Stack.pop_back();
-	if (!(t.type >= 0 || t.type == -10 || (t.type >= -2 && t.type <= -5) || a.type < 0)) throw "Incorrect expression in string " + NumberString;
+	// cout << a.name << " " << a.type << " " << t.name << " " << t.type << std::endl;
 	if (t.type == -10) {
 		if (a.type != 0) throw "Cannot use ! with not bool expression in string " + NumberString;
 		{
 			StructPoliz polka;
 			polka.name = "!";
 			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
 		}
 		Stack.push_back(a);
 	}
 	else if (t.type == -2) {
+		// cout << "AAAAAAAAAAAAAAAA " << a.name << std::endl;
 		if (a.type >= 3) throw "Cannot use a++ with arrays and maps in string " + NumberString;
 		{
 			StructPoliz polka;
 			polka.name = "a++";
 			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
 		}
+		// cout << "AAAAAAAAAAAAAAAA2 " << a.name << std::endl;
 		a.name = "";
 		Stack.push_back(a);
 	} else if (t.type == -3) {
@@ -421,6 +434,7 @@ void SemanticAnalysis::Check_Uno(int number_line, Poliz* where) {
 			StructPoliz polka;
 			polka.name = "a--";
 			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
 		}
 		a.name = "";
 		Stack.push_back(a);
@@ -432,6 +446,7 @@ void SemanticAnalysis::Check_Uno(int number_line, Poliz* where) {
 			StructPoliz polka;
 			polka.name = "++a";
 			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
 		}
 		Stack.push_back(a);
 	}
@@ -442,6 +457,7 @@ void SemanticAnalysis::Check_Uno(int number_line, Poliz* where) {
 			StructPoliz polka;
 			polka.name = "--a";
 			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
 		}
 		Stack.push_back(a);
 	}
@@ -451,8 +467,12 @@ void SemanticAnalysis::Check_Uno(int number_line, Poliz* where) {
 			StructPoliz polka;
 			polka.name = "-a";
 			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
 		}
 		Stack.push_back(a);
+	}
+	else {
+		throw "Incorrect expression in string " + NumberString;
 	}
 }
 

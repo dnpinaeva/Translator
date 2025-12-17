@@ -9,14 +9,16 @@ class Parser
 public:
 	void start();
 	Parser() = default;
-	Parser(LexicalAnalyzer& lexer) : lexer(lexer) {}
+	Parser(LexicalAnalyzer& lexer) : lexer(lexer) {
+		where = &poliz;
+	}
+	Poliz poliz;
+	SemanticAnalysis semantic;
 
 private:
 	Poliz* where;
 	LexicalAnalyzer lexer;
-	SemanticAnalysis semantic;
 	Lexeme current_lexeme;
-	Poliz poliz;
 	void program();
 	void type();
 	void var_notitle(const Lexeme& lex);

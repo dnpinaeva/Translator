@@ -3,6 +3,8 @@
 
 #include "LexicalAnalyzer.h"
 #include "Parser.h"
+#include "Poliz.h"
+#include "SemanticAnalysis.h"
 
 
 #include <iostream>
@@ -258,6 +260,28 @@ using std::pair;
 //    return Lexeme( 7, res );
 //}
 
+
+extern std::ostream& operator<< (std::ostream& out, const StructPoliz& other) {
+    std::string type = "";
+    if (other.type == TypePoliz::plus_) type = "plus_";
+    if (other.type == TypePoliz::move_) type = "move_";
+    if (other.type == TypePoliz::adress_) type = "adress_";
+    if (other.type == TypePoliz::separator_) type = "separator_";
+    if (other.type == TypePoliz::operation_) type = "operation_";
+    out << other.name << " " << type << " " << other.value_int << " " << other.value_float << " " << other.value_char << " " << other.value_string;
+    return out;
+}
+
+
+extern std::ostream& operator<< (std::ostream& out, const Poliz& other) {
+    out << "{\n";
+    for (auto& to : other.data_) {
+        out << to << std::endl;
+    }
+    out << "}\n";
+    return out;
+}
+
 int main()
 {
     //std::ifstream in("program2.txt", std::ios::binary);
@@ -297,9 +321,8 @@ int main()
         Lexeme p = lexer.get();
         cout << p.type << " " << p.value << "\n";
     }*/
-
+    Parser parser(lexer);
     try {
-        Parser parser(lexer);
         parser.start();
     }
     catch (Lexeme e) {
@@ -317,7 +340,13 @@ int main()
         cout << "semantic error:\n";
         cout << e << "\n";
     }
-    cout << "finish";
+    cout << "finish lexer\n";
+    cout << "global\n";
+    cout << parser.poliz;
+    for (auto& to : parser.semantic.TF) {
+        cout << to.name << " " << to.inner_name << "\n";
+        cout << to.poliz_function;
+    }
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"

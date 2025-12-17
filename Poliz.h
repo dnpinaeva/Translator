@@ -2,6 +2,9 @@
 
 #include <string>
 #include <vector>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
 
 enum class TypePoliz {plus_, operation_, move_, adress_, separator_};
 
@@ -28,6 +31,8 @@ public:
 	}
 	int Get_Position() { return (int)data_.size() - 1; }
 	void Write_Position(int position, StructPoliz to);
+	friend std::ostream& operator<< (std::ostream& out, const Poliz& other);
 private:
 	vector<StructPoliz> data_;
 };
+

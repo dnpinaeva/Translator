@@ -44,10 +44,46 @@ void Parser::program() {
 			current_lexeme = lexer.get();
 			//cout << "current " << current_lexeme.value << "\n";
 			if (current_lexeme.value == ";") {
+				{
+					StructPoliz polka;
+					polka.name = "";
+					polka.type = TypePoliz::separator_;
+					where->Push_Poliz(polka);
+				}
 				semantic.Push_ID(lex, type1, type2);
 				current_lexeme = lexer.get();
+				{
+					StructPoliz polka;
+					polka.name = lex.value;
+					polka.type = TypePoliz::operation_;
+					where->Push_Poliz(polka);
+				}
+				{
+					StructPoliz polka;
+					polka.name = "map " + type1 + " " + type2;
+					polka.type = TypePoliz::plus_;
+					where->Push_Poliz(polka);
+				}
 			}
 			else if (current_lexeme.value == "=") {
+				{
+					StructPoliz polka;
+					polka.name = "";
+					polka.type = TypePoliz::separator_;
+					where->Push_Poliz(polka);
+				}
+				{
+					StructPoliz polka;
+					polka.name = lex.value;
+					polka.type = TypePoliz::operation_;
+					where->Push_Poliz(polka);
+				}
+				{
+					StructPoliz polka;
+					polka.name = "map " + type1 + " " + type2;
+					polka.type = TypePoliz::plus_;
+					where->Push_Poliz(polka);
+				}
 				semantic.Push_ID(lex, type1, type2);
 				map_notitle(lex.value);
 				if (current_lexeme.value != ";") {
@@ -77,11 +113,35 @@ void Parser::program() {
 			Lexeme lex = current_lexeme;
 			current_lexeme = lexer.get();
 			if (current_lexeme.value == ";") {
+				{
+					StructPoliz polka;
+					polka.name = lex.value;
+					polka.type = TypePoliz::operation_;
+					where->Push_Poliz(polka);
+				}
+				{
+					StructPoliz polka;
+					polka.name = "var " + type1;
+					polka.type = TypePoliz::plus_;
+					where->Push_Poliz(polka);
+				}
 				semantic.Push_ID(lex, type1);
 				current_lexeme = lexer.get();
 			}
 			else if (current_lexeme.value == "=") {
 				semantic.Push_ID(lex, type1);
+				{
+					StructPoliz polka;
+					polka.name = lex.value;
+					polka.type = TypePoliz::operation_;
+					where->Push_Poliz(polka);
+				}
+				{
+					StructPoliz polka;
+					polka.name = "var " + type1;
+					polka.type = TypePoliz::plus_;
+					where->Push_Poliz(polka);
+				}
 				var_notitle(lex);
 				if (current_lexeme.value != ";") {
 					throw current_lexeme;
@@ -90,6 +150,18 @@ void Parser::program() {
 			}
 			else if (current_lexeme.value == "[") {
 				semantic.Push_ID(lex, "array " + type1);
+				{
+					StructPoliz polka;
+					polka.name = lex.value;
+					polka.type = TypePoliz::operation_;
+					where->Push_Poliz(polka);
+				}
+				{
+					StructPoliz polka;
+					polka.name = "array " + type1;
+					polka.type = TypePoliz::plus_;
+					where->Push_Poliz(polka);
+				}
 				array_notitle(lex.value);
 				if (current_lexeme.value != ";") {
 					throw current_lexeme;
@@ -174,18 +246,6 @@ void Parser::array_notitle(const string& name) {
 	}
 	if (current_lexeme.value != "}") {
 		throw current_lexeme;
-	}
-	{
-		StructPoliz polka;
-		polka.name = name;
-		polka.type = TypePoliz::operation_;
-		where->Push_Poliz(polka);
-	}
-	{
-		StructPoliz polka;
-		polka.name = "map";
-		polka.type = TypePoliz::plus_;
-		where->Push_Poliz(polka);
 	}
 	current_lexeme = lexer.get();
 	return;
@@ -288,12 +348,6 @@ void Parser::map_notitle(const string& name) {
 	if (current_lexeme.value != "{") {
 		throw current_lexeme;
 	}
-	{
-		StructPoliz polka;
-		polka.name = "";
-		polka.type = TypePoliz::separator_;
-		where->Push_Poliz(polka);
-	}
 	current_lexeme = lexer.get();
 	expression1();
 	StructStack res = semantic.Pop_Stack();
@@ -341,18 +395,6 @@ void Parser::map_notitle(const string& name) {
 	}
 	if (current_lexeme.value != "}") {
 		throw current_lexeme;
-	}
-	{
-		StructPoliz polka;
-		polka.name = name;
-		polka.type = TypePoliz::operation_;
-		where->Push_Poliz(polka);
-	}
-	{
-		StructPoliz polka;
-		polka.name = "array";
-		polka.type = TypePoliz::plus_;
-		where->Push_Poliz(polka);
 	}
 	current_lexeme = lexer.get();
 }
@@ -518,10 +560,40 @@ void Parser::description() {
 		}
 		current_lexeme = lexer.get();
 		semantic.Push_ID(lex, type1, type2);
+		{
+			StructPoliz polka;
+			polka.name = "";
+			polka.type = TypePoliz::separator_;
+			where->Push_Poliz(polka);
+		}
 		if (current_lexeme.value == ";") {
+			{
+				StructPoliz polka;
+				polka.name = lex.value;
+				polka.type = TypePoliz::operation_;
+				where->Push_Poliz(polka);
+			}
+			{
+				StructPoliz polka;
+				polka.name = "map " + type1 + " " + type2;
+				polka.type = TypePoliz::plus_;
+				where->Push_Poliz(polka);
+			}
 			return;
 		}
 		else if (current_lexeme.value == "=") {
+			{
+				StructPoliz polka;
+				polka.name = lex.value;
+				polka.type = TypePoliz::operation_;
+				where->Push_Poliz(polka);
+			}
+			{
+				StructPoliz polka;
+				polka.name = "map " + type1 + " " + type2;
+				polka.type = TypePoliz::plus_;
+				where->Push_Poliz(polka);
+			}
 			map_notitle(lex.value);
 			/*if (current_lexeme.value != ";") {
 				throw current_lexeme;
@@ -540,17 +612,59 @@ void Parser::description() {
 		}
 		Lexeme lex = current_lexeme;
 		current_lexeme = lexer.get();
+		{
+			StructPoliz polka;
+			polka.name = "";
+			polka.type = TypePoliz::separator_;
+			where->Push_Poliz(polka);
+		}
 		if (current_lexeme.value == ";") {
+			{
+				StructPoliz polka;
+				polka.name = lex.value;
+				polka.type = TypePoliz::operation_;
+				where->Push_Poliz(polka);
+			}
+			{
+				StructPoliz polka;
+				polka.name = "var " + type1;
+				polka.type = TypePoliz::plus_;
+				where->Push_Poliz(polka);
+			}
 			//current_lexeme = lexer.get();
 			semantic.Push_ID(lex, type1);
 			return;
 		}
 		if (current_lexeme.value == "=") {
 			semantic.Push_ID(lex, type1);
+			{
+				StructPoliz polka;
+				polka.name = lex.value;
+				polka.type = TypePoliz::operation_;
+				where->Push_Poliz(polka);
+			}
+			{
+				StructPoliz polka;
+				polka.name = "var " + type1;
+				polka.type = TypePoliz::plus_;
+				where->Push_Poliz(polka);
+			}
 			var_notitle(lex);
 		}
 		else {
 			semantic.Push_ID(lex, "array " +  type1);
+			{
+				StructPoliz polka;
+				polka.name = lex.value;
+				polka.type = TypePoliz::operation_;
+				where->Push_Poliz(polka);
+			}
+			{
+				StructPoliz polka;
+				polka.name = "array " + type1;
+				polka.type = TypePoliz::plus_;
+				where->Push_Poliz(polka);
+			}
 			array_notitle(lex.value);
 		}
 	}
@@ -923,7 +1037,7 @@ void Parser::map_delete() {
 	current_lexeme = lexer.get();
 	{
 		StructPoliz polka;
-		polka.name = "input";
+		polka.name = "delete";
 		polka.type = TypePoliz::plus_;
 		where->Push_Poliz(polka);
 	}
@@ -1099,6 +1213,7 @@ void Parser::expression9() {
 		}
 		current_lexeme = lexer.get();
 		if (current_lexeme.value == "++" || current_lexeme.value == "--") {
+			semantic.Push_Stack(-2 + (current_lexeme.value == "--"), current_lexeme);
 			if (type_lex == "int ") {
 				semantic.Push_Stack(0, last);
 			}
@@ -1124,7 +1239,7 @@ void Parser::expression9() {
 				cout << type_lex << "\n";
 				throw string("error type");
 			}
-			semantic.Push_Stack(-2 + (current_lexeme.value == "--"), current_lexeme);
+			// if (last.value == "counter") cout << "BBBBBBBB " << last.value << " " << -2 + (current_lexeme.value == "--") << std::endl;
 			semantic.Check_Uno(current_lexeme.line, where);
 			current_lexeme = lexer.get();
 		}
@@ -1211,7 +1326,14 @@ void Parser::expression9() {
 		}
 		else if (current_lexeme.value == "(") {
 			int line = current_lexeme.line;
+			// cout << "AAAAA " << last.value << std::endl;
 			current_lexeme = lexer.get();
+			{
+				StructPoliz polka;
+				polka.name = "";
+				polka.type = TypePoliz::separator_;
+				where->Push_Poliz(polka);
+			}
 			if (current_lexeme.value == ")") {
 				type_lex = semantic.Check_Call(current_lexeme, last.value);
 				if (type_lex == "int ") {
@@ -1239,6 +1361,18 @@ void Parser::expression9() {
 					cout << type_lex << "\n";
 					throw string("error type");
 				}
+				{
+					StructPoliz polka;
+					polka.name = last.value;
+					polka.type = TypePoliz::operation_;
+					where->Push_Poliz(polka);
+				}
+				{
+					StructPoliz polka;
+					polka.name = "call";
+					polka.type = TypePoliz::plus_;
+					where->Push_Poliz(polka);
+				}
 				current_lexeme = lexer.get();
 				return;
 			}
@@ -1262,6 +1396,7 @@ void Parser::expression9() {
 			}
 			params.pop_back();
 			type_lex = semantic.Check_Call(last, last.value + " " + params);
+			// cout << "RARRARARAR\n";
 			{
 				StructPoliz polka;
 				polka.name = last.value + " " + params;
@@ -1339,7 +1474,7 @@ void Parser::expression9() {
 			{
 				StructPoliz polka;
 				polka.type = TypePoliz::operation_;
-				polka.value_char = current_lexeme.value[0];
+				polka.value_char = current_lexeme.value[1];
 				if (current_lexeme.value == "\n") {
 					polka.value_char = '\n';
 				}
