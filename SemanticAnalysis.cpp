@@ -2,6 +2,17 @@
 
 #include "SemanticAnalysis.h"
 
+void SemanticAnalysis::Push_Value_TID(const std::string& name, const StructValue& val) {
+	for (int i = (int)StackTID.size() - 1; i >= 0; --i) {
+		for (auto& el : StackTID[i]) {
+			if (el.name == name) {
+				el.value = val;
+				return;
+			}
+		}
+	}
+}
+
 void SemanticAnalysis::Create_TID() {
 	StackTID.push_back({});
 }
@@ -24,8 +35,8 @@ void SemanticAnalysis::Delete_TID() {
 
 std::string SemanticAnalysis::Check_ID(const Lexeme& lex) {
 	NumberString = std::to_string(lex.line);
-	for (auto& cur : StackTID) {
-		for (auto& el : cur) {
+	for (int i = (int)StackTID.size() - 1; i >= 0; --i) {
+		for (auto& el : StackTID[i]) {
 			if (el.name == lex.value) {
 				return el.type + " " + el.type_map;
 			}

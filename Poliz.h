@@ -3,14 +3,14 @@
 #include <string>
 #include <vector>
 
-enum class TypePoliz {operator_, operation_, move_, adress_};
+enum class TypePoliz {plus_, operation_, move_, adress_, separator_};
 
 using std::string;
 using std::vector;
 
 struct StructPoliz {
 	TypePoliz type;
-	string name;
+	string name; // ID name or operation
 	int value_int;
 	float value_float;
 	char value_char;
@@ -23,6 +23,9 @@ class Poliz
 public:
 	void Push_Poliz(StructPoliz);
 	void Blanc();
+	void Clear_to_Position(int from) {
+		while (data_.size() > from) data_.pop_back();
+	}
 	int Get_Position() { return (int)data_.size() - 1; }
 	void Write_Position(int position, StructPoliz to);
 private:

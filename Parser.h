@@ -2,6 +2,7 @@
 
 #include "LexicalAnalyzer.h"
 #include "SemanticAnalysis.h"
+#include "Poliz.h"
 
 class Parser
 {
@@ -11,9 +12,11 @@ public:
 	Parser(LexicalAnalyzer& lexer) : lexer(lexer) {}
 
 private:
+	Poliz* where;
 	LexicalAnalyzer lexer;
 	SemanticAnalysis semantic;
 	Lexeme current_lexeme;
+	Poliz poliz;
 	void program();
 	void type();
 	void var_notitle(const Lexeme& lex);

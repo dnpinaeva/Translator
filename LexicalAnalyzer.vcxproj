@@ -129,12 +129,14 @@
   <ItemGroup>
     <ClCompile Include="LexicalAnalyzer.cpp" />
     <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="Poliz.cpp" />
     <ClCompile Include="SemanticAnalysis.cpp" />
     <ClCompile Include="Treap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LexicalAnalyzer.h" />
     <ClInclude Include="Parser.h" />
+    <ClInclude Include="Poliz.h" />
     <ClInclude Include="SemanticAnalysis.h" />
     <ClInclude Include="Treap.h" />
     <ClInclude Include="Trie.h" />

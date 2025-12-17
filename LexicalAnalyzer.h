@@ -22,7 +22,6 @@ using std::pair;
 5 - ,
 6 - $ (end of file)
 7 - else
-
 8 - comments
 
 20 - string
