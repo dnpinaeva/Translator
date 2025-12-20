@@ -3,13 +3,14 @@
 #include "LexicalAnalyzer.h"
 #include "SemanticAnalysis.h"
 #include "Poliz.h"
+#include "Execution.h"
 
 class Parser
 {
 public:
 	void start();
 	Parser() = default;
-	Parser(LexicalAnalyzer& lexer) : lexer(lexer) {
+	Parser(LexicalAnalyzer& lexer) : lexer(lexer)  {
 		where = &poliz;
 	}
 	Poliz poliz;

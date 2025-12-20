@@ -39,7 +39,7 @@ void Execution::call_(const Poliz& poliz, int& i) {
 
 StructValue Execution::Get(const Poliz& poliz) {
 	int i = 0;
-	for (; i < poliz.data_.size();) {
+	for (; i < poliz.data_.size();++i) {
 		auto el = poliz.data_[i];
 		if (el.type == TypePoliz::separator_ || el.type == TypePoliz::adress_) {
 			++i;

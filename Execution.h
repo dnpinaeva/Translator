@@ -12,7 +12,10 @@ class Execution
 {
 public:
 	StructValue Get(const Poliz& poliz);
+	Execution(SemanticAnalysis& semantic): semantic(semantic) {
+	}
 private:
+	SemanticAnalysis semantic;
 	vector<StructPoliz> operations;
 	void return_(const Poliz& poliz, int& i);
 	void map_(const Poliz& poliz, int& i);

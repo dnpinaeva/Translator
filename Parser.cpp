@@ -13,6 +13,8 @@ void Parser::start() {
 		throw current_lexeme;
 	}
 	semantic.Check_Main();
+	Execution execution(semantic);
+	execution.Get(*where);
 }
 
 void Parser::program() {
