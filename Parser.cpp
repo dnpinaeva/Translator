@@ -74,6 +74,12 @@ void Parser::program() {
 					polka.type = TypePoliz::separator_;
 					where->Push_Poliz(polka);
 				}
+				semantic.Push_ID(lex, type1, type2);
+				map_notitle(lex.value);
+				if (current_lexeme.value != ";") {
+					throw current_lexeme;
+				}
+				current_lexeme = lexer.get();
 				{
 					StructPoliz polka;
 					polka.name = lex.value;
@@ -86,12 +92,6 @@ void Parser::program() {
 					polka.type = TypePoliz::plus_;
 					where->Push_Poliz(polka);
 				}
-				semantic.Push_ID(lex, type1, type2);
-				map_notitle(lex.value);
-				if (current_lexeme.value != ";") {
-					throw current_lexeme;
-				}
-				current_lexeme = lexer.get();
 			}
 			else {
 				function_notitle(lex, type1, type2);
@@ -152,6 +152,11 @@ void Parser::program() {
 			}
 			else if (current_lexeme.value == "[") {
 				semantic.Push_ID(lex, "array " + type1);
+				array_notitle(lex.value);
+				if (current_lexeme.value != ";") {
+					throw current_lexeme;
+				}
+				current_lexeme = lexer.get();
 				{
 					StructPoliz polka;
 					polka.name = lex.value;
@@ -164,11 +169,6 @@ void Parser::program() {
 					polka.type = TypePoliz::plus_;
 					where->Push_Poliz(polka);
 				}
-				array_notitle(lex.value);
-				if (current_lexeme.value != ";") {
-					throw current_lexeme;
-				}
-				current_lexeme = lexer.get();
 			}
 			else {
 				function_notitle(lex, type1);
@@ -584,6 +584,7 @@ void Parser::description() {
 			return;
 		}
 		else if (current_lexeme.value == "=") {
+			map_notitle(lex.value);
 			{
 				StructPoliz polka;
 				polka.name = lex.value;
@@ -596,7 +597,6 @@ void Parser::description() {
 				polka.type = TypePoliz::plus_;
 				where->Push_Poliz(polka);
 			}
-			map_notitle(lex.value);
 			/*if (current_lexeme.value != ";") {
 				throw current_lexeme;
 			}
@@ -655,6 +655,7 @@ void Parser::description() {
 		}
 		else {
 			semantic.Push_ID(lex, "array " +  type1);
+			array_notitle(lex.value);
 			{
 				StructPoliz polka;
 				polka.name = lex.value;
@@ -667,7 +668,6 @@ void Parser::description() {
 				polka.type = TypePoliz::plus_;
 				where->Push_Poliz(polka);
 			}
-			array_notitle(lex.value);
 		}
 	}
 }

@@ -17,7 +17,7 @@ public:
 private:
 	SemanticAnalysis semantic;
 	vector<StructPoliz> operations;
-	void return_(const Poliz& poliz, int& i);
+	StructValue return_(const Poliz& poliz, int& i);
 	void map_(const Poliz& poliz, int& i);
 	void array_(const Poliz& poliz, int& i);
 	void var_(const Poliz& poliz, int& i);

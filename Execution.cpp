@@ -1,19 +1,76 @@
 #include "Execution.h"
 #include "Poliz.h"
+#include <string>
 
-void Execution::return_(const Poliz& poliz, int& i) {
+using std::string;
 
+StructValue Execution::return_(const Poliz& poliz, int& i) {
+
+	semantic.Delete_TID();
+	return StructValue();
 }
 
 void Execution::map_(const Poliz& poliz, int& i) {
-
+	string type1 = poliz.data_[i].name.substr(4, poliz.data_[i].name.find(" ", 4) - 5);
+	string type2 = poliz.data_[i].name.substr(poliz.data_[i].name.find(" ", 4) + 1);
+	StructPoliz name = operations.back();
+	operations.pop_back();
+	semantic.Push_ID(name.name, type1, type2);
+	StructValue val;
+	while (operations.back().type != TypePoliz::separator_) {
+		StructPoliz two = operations.back();
+		operations.pop_back();
+		StructPoliz one = operations.back();
+		operations.pop_back();
+		if (type1 == "int") {
+			if (type2 == "int") {
+				val.value_int_int.erase(0);
+			} else if (type2 == "char") {
+				val.value_int_char.insert(one.value_int, two.value_char);
+			}
+			else {
+				val.value_int_float.insert(one.value_int, two.value_float);
+			}
+		}
+		else if (type1 == "char") {
+			if (type2 == "int") {
+				val.value_char_int.insert(one.value_char, two.value_int);
+			}
+			else if (type2 == "char") {
+				val.value_char_char.insert(one.value_char, two.value_char);
+			}
+			else {
+				val.value_char_float.insert(one.value_char, two.value_float);
+			}
+		}
+		else {
+			if (type2 == "int") {
+				val.value_float_int.insert(one.value_float, two.value_int);
+			}
+			else if (type2 == "char") {
+				val.value_float_char.insert(one.value_float, two.value_char);
+			}
+			else {
+				val.value_float_float.insert(one.value_float, two.value_float);
+			}
+		}
+	}
+	operations.pop_back();
+	semantic.Push_Value_TID(name.name, val);
 }
 
 void Execution::array_(const Poliz& poliz, int& i) {
-
+	string type1 = poliz.data_[i].name.substr(4, poliz.data_[i].name.find(" ", 4) - 5);
+	StructPoliz name = operations.back();
+	operations.pop_back();
+	semantic.Push_ID(name.name, type1);
 }
 
 void Execution::var_(const Poliz& poliz, int& i) {
+	string type1 = poliz.data_[i].name.substr(4, poliz.data_[i].name.find(" ", 4) - 5);
+	StructPoliz name = operations.back();
+	operations.pop_back();
+	semantic.Push_ID(name.name, type1);
 
 }
 
@@ -38,10 +95,14 @@ void Execution::call_(const Poliz& poliz, int& i) {
 }
 
 StructValue Execution::Get(const Poliz& poliz) {
+	semantic.Create_TID();
 	int i = 0;
 	for (; i < poliz.data_.size();++i) {
 		auto el = poliz.data_[i];
 		if (el.type == TypePoliz::separator_ || el.type == TypePoliz::adress_) {
+			if (el.type == TypePoliz::separator_) {
+				operations.push_back(el);
+			}
 			++i;
 			continue;
 		}
@@ -55,8 +116,7 @@ StructValue Execution::Get(const Poliz& poliz) {
 		}
 		if (el.type == TypePoliz::plus_) {
 			if (el.name == "return") {
-				return_(poliz, i);
-				continue;
+				return return_(poliz, i);
 			}
 			else if (el.name.substr(0, 4) == "map ") {
 				map_(poliz, i);
@@ -92,5 +152,6 @@ StructValue Execution::Get(const Poliz& poliz) {
 			}
 		}
 	}
+	semantic.Delete_TID();
 	return StructValue();
 }

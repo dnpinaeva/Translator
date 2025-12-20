@@ -119,6 +119,7 @@ class SemanticAnalysis {
 public:
 	void Create_TID();
 	void Push_ID(const Lexeme& lex, const std::string& type, std::string type2 = "");
+	void Push_ID(const string& name, const std::string& type, std::string type2 = "");
 	void Push_Value_TID(const std::string& name, const StructValue& val);
 	void Delete_TID();
 	std::string Check_ID(const Lexeme& name);

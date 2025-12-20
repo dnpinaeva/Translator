@@ -29,6 +29,11 @@ void SemanticAnalysis::Push_ID(const Lexeme& lex, const std::string& type, std::
 
 }
 
+void SemanticAnalysis::Push_ID(const string& name, const std::string& type, std::string type2) {
+	StructTid new_id(name, type, type2);
+	StackTID.back().push_back(new_id);
+}
+
 void SemanticAnalysis::Delete_TID() {
 	StackTID.pop_back();
 }
