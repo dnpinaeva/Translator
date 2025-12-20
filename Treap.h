@@ -42,8 +42,9 @@ class Treap {
 public:
     Treap() : root(NULL) {};
     Treap(Node2<T1, T2>*);
-    void insert(T1 key, T2 val);
+    void insert(T1 key, T2 val); 
     void erase(T1 key);
+    int find(T1 key);
     Treap operator=(const Treap& other) {
         root->clear(root);
         root = other.root;

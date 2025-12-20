@@ -1,0 +1,9 @@
+map type1 type2
+var type1
+array type1
+return
+print
+input
+delete
+call
+операции выражений

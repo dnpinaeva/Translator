@@ -1,3 +1,5 @@
+#ifndef POLIZ_H
+#define POLIZ_H
 #pragma once
 
 #include <string>
@@ -5,6 +7,8 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+
+#include "Execution";
 
 enum class TypePoliz {plus_, operation_, move_, adress_, separator_};
 
@@ -23,6 +27,7 @@ struct StructPoliz {
 
 class Poliz
 {
+	friend class Execution;
 public:
 	void Push_Poliz(StructPoliz);
 	void Blanc();
@@ -36,3 +41,5 @@ private:
 	vector<StructPoliz> data_;
 };
 
+
+#endif POLIZ_H

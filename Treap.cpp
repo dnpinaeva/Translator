@@ -47,7 +47,7 @@ template<typename T1, typename T2> Node2<T1, T2>* merge_func(Node2<T1, T2>* a, N
     }
 }
 
-template<typename T1, typename T2> bool find_func(Node2<T1, T2>* root, int key) {
+template<typename T1, typename T2> bool find_func(Node2<T1, T2>* root, T1 key) {
     if (root == nullptr) return false;
     if (root->value == key) return true;
     if (root->value > key) return find_func(root->left, key);
@@ -80,4 +80,9 @@ template<typename T1, typename T2> void Treap<T1, T2>::insert(T1 key, T2 val) {
 
 template<typename T1, typename T2> void Treap<T1, T2>::erase(T1 key) {
     root = erase_func(root, key);
+}
+
+template<typename T1, typename T2> int Treap<T1, T2>::find(T1 key) {
+    if (find_func(root, key)) return 1;
+    return 0;
 }
