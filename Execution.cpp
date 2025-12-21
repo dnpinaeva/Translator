@@ -64,6 +64,23 @@ void Execution::array_(const Poliz& poliz, int& i) {
 	StructPoliz name = operations.back();
 	operations.pop_back();
 	semantic.Push_ID(name.name, type1);
+	StructValue val;
+	while (operations.back().type != TypePoliz::separator_) {
+		StructPoliz one = operations.back();
+		operations.pop_back();
+		if (type1 == "int") {
+			val.value_array_int.push_back(one.value_int);
+		}
+		else if (type1 == "char") {
+			val.value_array_char.push_back(one.value_char);
+		}
+		else {
+			val.value_array_float.push_back(one.value_float);
+		}
+	}
+	
+	operations.pop_back();
+	semantic.Push_Value_TID(name.name, val);
 }
 
 void Execution::var_(const Poliz& poliz, int& i) {
