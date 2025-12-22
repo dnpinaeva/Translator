@@ -11,6 +11,7 @@
 #include "Execution";
 
 enum class TypePoliz {plus_, operation_, move_, adress_, separator_};
+enum class TypeNumber {char_, int_, float_};
 
 using std::string;
 using std::vector;
@@ -22,6 +23,7 @@ struct StructPoliz {
 	float value_float;
 	char value_char;
 	string value_string;
+	TypeNumber type_number;
 	StructPoliz(): value_int(0), value_float(0), value_char(0), name(""), value_string("") {}
 };
 

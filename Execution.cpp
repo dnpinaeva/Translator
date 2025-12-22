@@ -24,38 +24,47 @@ void Execution::map_(const Poliz& poliz, int& i) {
 		operations.pop_back();
 		StructPoliz v1;
 		if (one.name != "") {
-			StructValue v = semantic.Get_Value_ID(one.name);
+			StructValue v = *semantic.Get_Value_ID(one.name);
 			if (v.type_value == TypeValue::Int) {
 				if (type1 == "int") {
 					v1.value_int = (int)v.value_int;
+					v1.type_number = TypeNumber::int_;
 				}
 				else if (type1 == "char") {
 					v1.value_char = (char)v.value_int;
+					v1.type_number = TypeNumber::char_;
 				}
 				else {
 					v1.value_float = (float)v.value_int;
+					v1.type_number = TypeNumber::float_;
 				}
 			}
 			else if (v.type_value == TypeValue::Char) {
 				if (type1 == "int") {
 					v1.value_int = (int)v.value_char;
+					v1.type_number = TypeNumber::int_;
 				}
 				else if (type1 == "char") {
 					v1.value_char = (char)v.value_char;
+					v1.type_number = TypeNumber::char_;
 				}
 				else {
 					v1.value_float = (float)v.value_char;
+					v1.type_number = TypeNumber::float_;
 				}
 			}
 			else {
 				if (type1 == "int") {
 					v1.value_int = (int)v.value_float;
+					v1.type_number = TypeNumber::int_;
 				}
 				else if (type1 == "char") {
 					v1.value_char = (char)v.value_float;
+					v1.type_number = TypeNumber::char_;
 				}
 				else {
 					v1.value_float = (float)v.value_float;
+					v1.type_number = TypeNumber::float_;
 				}
 			}
 		}
@@ -65,38 +74,47 @@ void Execution::map_(const Poliz& poliz, int& i) {
 
 		StructPoliz v2;
 		if (two.name != "") {
-			StructValue v = semantic.Get_Value_ID(two.name);
+			StructValue v = *semantic.Get_Value_ID(two.name);
 			if (v.type_value == TypeValue::Int) {
 				if (type2 == "int") {
 					v2.value_int = (int)v.value_int;
+					v2.type_number = TypeNumber::int_;
 				}
 				else if (type2 == "char") {
 					v2.value_char = (char)v.value_int;
+					v2.type_number = TypeNumber::char_;
 				}
 				else {
 					v2.value_float = (float)v.value_int;
+					v2.type_number = TypeNumber::float_;
 				}
 			}
 			else if (v.type_value == TypeValue::Char) {
 				if (type2 == "int") {
 					v2.value_int = (int)v.value_char;
+					v2.type_number = TypeNumber::int_;
 				}
 				else if (type2 == "char") {
 					v2.value_char = (char)v.value_char;
+					v2.type_number = TypeNumber::char_;
 				}
 				else {
 					v2.value_float = (float)v.value_char;
+					v2.type_number = TypeNumber::float_;
 				}
 			}
 			else {
 				if (type2 == "int") {
 					v2.value_int = (int)v.value_float;
+					v2.type_number = TypeNumber::int_;
 				}
 				else if (type2 == "char") {
 					v2.value_char = (char)v.value_float;
+					v2.type_number = TypeNumber::char_;
 				}
 				else {
 					v2.value_float = (float)v.value_float;
+					v2.type_number = TypeNumber::float_;
 				}
 			}
 		}
@@ -153,7 +171,7 @@ void Execution::array_(const Poliz& poliz, int& i) {
 		operations.pop_back();
 		if (type1 == "int") {
 			if (one.name != "") {
-				StructValue v = semantic.Get_Value_ID(one.name);
+				StructValue v = *semantic.Get_Value_ID(one.name);
 				if (v.type_value == TypeValue::Int) {
 					val.value_array_int.push_back((int)v.value_int);
 				}
@@ -170,7 +188,7 @@ void Execution::array_(const Poliz& poliz, int& i) {
 		}
 		else if (type1 == "char") {
 			if (one.name != "") {
-				StructValue v = semantic.Get_Value_ID(one.name);
+				StructValue v = *semantic.Get_Value_ID(one.name);
 				if (v.type_value == TypeValue::Int) {
 					val.value_array_char.push_back((char)v.value_int);
 				}
@@ -187,7 +205,7 @@ void Execution::array_(const Poliz& poliz, int& i) {
 		}
 		else {
 			if (one.name != "") {
-				StructValue v = semantic.Get_Value_ID(one.name);
+				StructValue v = *semantic.Get_Value_ID(one.name);
 				if (v.type_value == TypeValue::Int) {
 					val.value_array_float.push_back((float)v.value_int);
 				}
@@ -237,9 +255,186 @@ void Execution::var_(const Poliz& poliz, int i) {
 
 }
 
-void Execution::expression_(const Poliz& poliz, int& i) {
-	if (poliz.Get_Value(i).name == "[]") {
+StructPoliz Execution::get_operation_value() {         // Add arrays
+	StructPoliz one = operations.back();
+	operations.pop_back();
+	if (one.name != "") {
+		StructValue v = *semantic.Get_Value_ID(one.name);
+		if (v.type_value == TypeValue::Int) {
+			one.type_number = TypeNumber::int_;
+			one.value_int = v.value_int;
+		}
+		else if (v.type_value == TypeValue::Char) {
+			one.type_number = TypeNumber::char_;
+			one.value_char = v.value_char;
+		}
+		else if (v.type_value == TypeValue::Float) {
+			one.type_number = TypeNumber::float_;
+			one.value_float = v.value_float;
+		}
+	}
+	one.name = "";
+	return one;
+}
 
+void Execution::expression_(const Poliz& poliz, int& i) {
+	string op = poliz.Get_Value(i).name;
+	if (op == "[]") { // How to store it as an lvalue ???
+		StructPoliz two = get_operation_value();
+		StructPoliz one = operations.back();
+		operations.pop_back();
+		StructValue v = *semantic.Get_Value_ID(one.name);
+		if (v.type_value == TypeValue::ArrayInt) {
+			one.type_number = TypeNumber::int_;
+		}
+		if (v.type_value == TypeValue::ArrayChar) {
+			one.type_number = TypeNumber::char_;
+		}
+		if (v.type_value == TypeValue::ArrayFloat) {
+			one.type_number = TypeNumber::float_;
+		}
+
+		if (two.type_number == TypeNumber::float_) {
+			one.value_int = two.value_float;
+		}
+		if (two.type_number == TypeNumber::int_) {
+			one.value_int = two.value_int;
+		}
+		if (two.type_number == TypeNumber::char_) {
+			one.value_int = two.value_char;
+		}
+	}
+	else if (op == "a++") {
+		StructPoliz one = operations.back();
+		operations.pop_back();
+		if (one.name == "") {
+			throw "++ to not lvalue";
+		}
+		StructValue* v = semantic.Get_Value_ID(one.name);
+		if (v->type_value == TypeValue::Int) {
+
+		}
+	}
+	else if (op == "a--") {
+
+	}
+	else if (op == "++a") {
+
+	}
+	else if (op == "--a") {
+
+	}
+	else if (op == "+") {
+		StructPoliz two = get_operation_value();
+		StructPoliz one = get_operation_value();
+		StructPoliz res;
+		res.type = TypePoliz::operation_;
+		if (one.type_number == TypeNumber::float_ || two.type_number == TypeNumber::float_) {
+			res.type_number = TypeNumber::float_;
+			res.value_float = one.value_float + two.value_float;
+			res.value_char = res.value_float;
+			res.value_int = res.value_float;
+			operations.push_back(res);
+			return;
+		}
+		if (one.type_number == TypeNumber::int_ || two.type_number == TypeNumber::int_) {
+			res.type_number = TypeNumber::int_;
+			res.value_int = one.value_int + two.value_int;
+			res.value_char = res.value_int;
+			res.value_float = res.value_int;
+			operations.push_back(res);
+			return;
+		}
+		res.type_number = TypeNumber::char_;
+		res.value_char = one.value_char + two.value_char;
+		res.value_float = res.value_char;
+		res.value_int = res.value_char;
+		operations.push_back(res);
+		return;
+	}
+	else if (op == "-") {
+		StructPoliz two = get_operation_value();
+		StructPoliz one = get_operation_value();
+		StructPoliz res;
+		res.type = TypePoliz::operation_;
+		if (one.type_number == TypeNumber::float_ || two.type_number == TypeNumber::float_) {
+			res.type_number = TypeNumber::float_;
+			res.value_float = one.value_float - two.value_float;
+			res.value_char = res.value_float;
+			res.value_int = res.value_float;
+			operations.push_back(res);
+			return;
+		}
+		if (one.type_number == TypeNumber::int_ || two.type_number == TypeNumber::int_) {
+			res.type_number = TypeNumber::int_;
+			res.value_int = one.value_int - two.value_int;
+			res.value_char = res.value_int;
+			res.value_float = res.value_int;
+			operations.push_back(res);
+			return;
+		}
+		res.type_number = TypeNumber::char_;
+		res.value_char = one.value_char - two.value_char;
+		res.value_float = res.value_char;
+		res.value_int = res.value_char;
+		operations.push_back(res);
+		return;
+	}
+	else if (op == "*") {
+		StructPoliz two = get_operation_value();
+		StructPoliz one = get_operation_value();
+		StructPoliz res;
+		res.type = TypePoliz::operation_;
+		if (one.type_number == TypeNumber::float_ || two.type_number == TypeNumber::float_) {
+			res.type_number = TypeNumber::float_;
+			res.value_float = one.value_float * two.value_float;
+			res.value_char = res.value_float;
+			res.value_int = res.value_float;
+			operations.push_back(res);
+			return;
+		}
+		if (one.type_number == TypeNumber::int_ || two.type_number == TypeNumber::int_) {
+			res.type_number = TypeNumber::int_;
+			res.value_int = one.value_int * two.value_int;
+			res.value_char = res.value_int;
+			res.value_float = res.value_int;
+			operations.push_back(res);
+			return;
+		}
+		res.type_number = TypeNumber::char_;
+		res.value_char = one.value_char * two.value_char;
+		res.value_float = res.value_char;
+		res.value_int = res.value_char;
+		operations.push_back(res);
+		return;
+	}
+	else if (op == "/") {
+		StructPoliz two = get_operation_value();
+		StructPoliz one = get_operation_value();
+		StructPoliz res;
+		res.type = TypePoliz::operation_;
+		if (one.type_number == TypeNumber::float_ || two.type_number == TypeNumber::float_) {
+			res.type_number = TypeNumber::float_;
+			res.value_float = one.value_float / two.value_float;
+			res.value_char = res.value_float;
+			res.value_int = res.value_float;
+			operations.push_back(res);
+			return;
+		}
+		if (one.type_number == TypeNumber::int_ || two.type_number == TypeNumber::int_) {
+			res.type_number = TypeNumber::int_;
+			res.value_int = one.value_int / two.value_int;
+			res.value_char = res.value_int;
+			res.value_float = res.value_int;
+			operations.push_back(res);
+			return;
+		}
+		res.type_number = TypeNumber::char_;
+		res.value_char = one.value_char / two.value_char;
+		res.value_float = res.value_char;
+		res.value_int = res.value_char;
+		operations.push_back(res);
+		return;
 	}
 }
 

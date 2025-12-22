@@ -1486,6 +1486,7 @@ void Parser::expression9() {
 				}
 				polka.value_int = polka.value_char;
 				polka.value_float = polka.value_char;
+				polka.type_number = TypeNumber::char_;
 				where->Push_Poliz(polka);
 			}
 			semantic.Push_Stack(2, current_lexeme);
@@ -1496,6 +1497,7 @@ void Parser::expression9() {
 				polka.value_int = stoi(current_lexeme.value);
 				polka.value_char = polka.value_int;
 				polka.value_float = polka.value_int;
+				polka.type_number = TypeNumber::int_;
 				where->Push_Poliz(polka);
 			}
 			semantic.Push_Stack(0, current_lexeme);
@@ -1506,6 +1508,7 @@ void Parser::expression9() {
 				polka.value_float = stof(current_lexeme.value);
 				polka.value_int = polka.value_float;
 				polka.value_char = polka.value_float;
+				polka.type_number = TypeNumber::float_;
 				where->Push_Poliz(polka);
 			}
 			semantic.Push_Stack(1, current_lexeme);

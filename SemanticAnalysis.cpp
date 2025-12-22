@@ -51,11 +51,11 @@ std::string SemanticAnalysis::Check_ID(const Lexeme& lex) {
 	throw "Id " + lex.value + " doesn't exist in string " + NumberString;
 }
 
-StructValue SemanticAnalysis::Get_Value_ID(const string& name) {
+StructValue* SemanticAnalysis::Get_Value_ID(const string& name) {
 	for (int i = (int)StackTID.size() - 1; i >= 0; --i) {
 		for (auto& el : StackTID[i]) {
 			if (el.name == name) {
-				return el.value;
+				return &el.value;
 			}
 		}
 	}
@@ -130,7 +130,7 @@ a-- -3
 = -19
 find -20
 , - -21
-- -22
+-a -22
 % -23
 
 0 - int

@@ -275,8 +275,10 @@ extern std::ostream& operator<< (std::ostream& out, const StructPoliz& other) {
 
 extern std::ostream& operator<< (std::ostream& out, const Poliz& other) {
     out << "{\n";
+    out << other.data_.size() << "\n";
+    int i = 0;
     for (auto& to : other.data_) {
-        out << to << std::endl;
+        out << i++ << " " << to << std::endl;
     }
     out << "}\n";
     return out;

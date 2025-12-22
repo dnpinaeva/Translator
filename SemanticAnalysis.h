@@ -123,7 +123,7 @@ public:
 	void Push_Value_TID(const std::string& name, const StructValue& val);
 	void Delete_TID();
 	std::string Check_ID(const Lexeme& name);
-	StructValue Get_Value_ID(const string& name);
+	StructValue* Get_Value_ID(const string& name);
 	void New_Func(const Lexeme& name, const std::string& inner_name, const std::string& type);
 	std::string Check_Call(const Lexeme& name, const std::string& inner_name);
 	void Push_Stack(int type, Lexeme lex);

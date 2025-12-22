@@ -26,6 +26,8 @@ private:
 	void print_(const Poliz& poliz, int& i);
 	void delete_(const Poliz& poliz, int& i);
 	void call_(const Poliz& poliz, int& i);
+
+	StructPoliz get_operation_value();
 };
 
 #endif EXECUTION_H
