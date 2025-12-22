@@ -52,7 +52,7 @@ template<typename T1, typename T2> void update(Node2<T1, T2>* Node2) {
 
 template<typename T1, typename T2> pair<Node2<T1, T2>*, Node2<T1, T2>*> split_func(Node2<T1, T2>* root, int key) {
     if (root == nullptr) return make_pair(nullptr, nullptr);
-    if (root->value >= key) {
+    if (root->key >= key) {
         pair<Node2<T1, T2>*, Node2<T1, T2>*> res = split_func(root->left, key);
         Node2<T1, T2>* l = res.first;
         Node2<T1, T2>* r = res.second;
@@ -87,9 +87,15 @@ template<typename T1, typename T2> Node2<T1, T2>* merge_func(Node2<T1, T2>* a, N
 
 template<typename T1, typename T2> bool find_func(Node2<T1, T2>* root, T1 key) {
     if (root == nullptr) return false;
-    if (root->value == key) return true;
-    if (root->value > key) return find_func(root->left, key);
+    if (root->key == key) return true;
+    if (root->key > key) return find_func(root->left, key);
     return find_func(root->right, key);
+}
+
+template<typename T1, typename T2> T2 get_func(Node2<T1, T2>* root, T1 key) {
+    if (root->key == key) return root->value;
+    if (root->key > key) return get_func(root->left, key);
+    return get_func(root->right, key);
 }
 
 template<typename T1, typename T2> Node2<T1, T2>* insert_func(Node2<T1, T2>* root, T1 key, T2 val) {
@@ -126,6 +132,9 @@ public:
     int find(T1 key) {
         if (find_func(root, key)) return 1;
         return 0;
+    }
+    T2 get(T1 key) {
+        return get_func(root, key);
     }
     Treap operator=(const Treap& other) {
         root->clear(root);
