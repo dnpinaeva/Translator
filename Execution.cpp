@@ -22,36 +22,119 @@ void Execution::map_(const Poliz& poliz, int& i) {
 		operations.pop_back();
 		StructPoliz one = operations.back();
 		operations.pop_back();
-		if (type1 == "int") {
-			if (type2 == "int") {
-				val.value_int_int.erase(0);
-			} else if (type2 == "char") {
-				val.value_int_char.insert(one.value_int, two.value_char);
+		StructPoliz v1;
+		if (one.name != "") {
+			StructValue v = semantic.Get_Value_ID(one.name);
+			if (v.type_value == TypeValue::Int) {
+				if (type1 == "int") {
+					v1.value_int = (int)v.value_int;
+				}
+				else if (type1 == "char") {
+					v1.value_char = (char)v.value_int;
+				}
+				else {
+					v1.value_float = (float)v.value_int;
+				}
+			}
+			else if (v.type_value == TypeValue::Char) {
+				if (type1 == "int") {
+					v1.value_int = (int)v.value_char;
+				}
+				else if (type1 == "char") {
+					v1.value_char = (char)v.value_char;
+				}
+				else {
+					v1.value_float = (float)v.value_char;
+				}
 			}
 			else {
-				val.value_int_float.insert(one.value_int, two.value_float);
+				if (type1 == "int") {
+					v1.value_int = (int)v.value_float;
+				}
+				else if (type1 == "char") {
+					v1.value_char = (char)v.value_float;
+				}
+				else {
+					v1.value_float = (float)v.value_float;
+				}
+			}
+		}
+		else {
+			v1 = one;
+		}
+
+		StructPoliz v2;
+		if (two.name != "") {
+			StructValue v = semantic.Get_Value_ID(two.name);
+			if (v.type_value == TypeValue::Int) {
+				if (type2 == "int") {
+					v2.value_int = (int)v.value_int;
+				}
+				else if (type2 == "char") {
+					v2.value_char = (char)v.value_int;
+				}
+				else {
+					v2.value_float = (float)v.value_int;
+				}
+			}
+			else if (v.type_value == TypeValue::Char) {
+				if (type2 == "int") {
+					v2.value_int = (int)v.value_char;
+				}
+				else if (type2 == "char") {
+					v2.value_char = (char)v.value_char;
+				}
+				else {
+					v2.value_float = (float)v.value_char;
+				}
+			}
+			else {
+				if (type2 == "int") {
+					v2.value_int = (int)v.value_float;
+				}
+				else if (type2 == "char") {
+					v2.value_char = (char)v.value_float;
+				}
+				else {
+					v2.value_float = (float)v.value_float;
+				}
+			}
+		}
+		else {
+			v2 = two;
+		}
+
+		if (type1 == "int") {
+			if (type2 == "int") {
+				val.value_int_int.insert(v1.value_int, v2.value_int);
+			}
+			else if (type2 == "char") {
+				val.value_int_char.insert(v1.value_int, v2.value_char);
+			}
+			else {
+				val.value_int_float.insert(v1.value_int, v2.value_float);
 			}
 		}
 		else if (type1 == "char") {
 			if (type2 == "int") {
-				val.value_char_int.insert(one.value_char, two.value_int);
+				val.value_char_int.insert(v1.value_char, v2.value_int);
 			}
 			else if (type2 == "char") {
-				val.value_char_char.insert(one.value_char, two.value_char);
+				val.value_char_char.insert(v1.value_char, v2.value_char);
 			}
 			else {
-				val.value_char_float.insert(one.value_char, two.value_float);
+				val.value_char_float.insert(v1.value_char, v2.value_float);
 			}
 		}
 		else {
 			if (type2 == "int") {
-				val.value_float_int.insert(one.value_float, two.value_int);
+				val.value_float_int.insert(v1.value_float, v2.value_int);
 			}
 			else if (type2 == "char") {
-				val.value_float_char.insert(one.value_float, two.value_char);
+				val.value_float_char.insert(v1.value_float, v2.value_char);
 			}
 			else {
-				val.value_float_float.insert(one.value_float, two.value_float);
+				val.value_float_float.insert(v1.value_float, v2.value_float);
 			}
 		}
 	}
@@ -69,21 +152,84 @@ void Execution::array_(const Poliz& poliz, int& i) {
 		StructPoliz one = operations.back();
 		operations.pop_back();
 		if (type1 == "int") {
-			val.value_array_int.push_back(one.value_int);
+			if (one.name != "") {
+				StructValue v = semantic.Get_Value_ID(one.name);
+				if (v.type_value == TypeValue::Int) {
+					val.value_array_int.push_back((int)v.value_int);
+				}
+				else if (v.type_value == TypeValue::Char) {
+					val.value_array_int.push_back((int)v.value_char);
+				}
+				else {
+					val.value_array_int.push_back((int)v.value_float);
+				}
+			}
+			else {
+				val.value_array_int.push_back(one.value_int);
+			}
 		}
 		else if (type1 == "char") {
-			val.value_array_char.push_back(one.value_char);
+			if (one.name != "") {
+				StructValue v = semantic.Get_Value_ID(one.name);
+				if (v.type_value == TypeValue::Int) {
+					val.value_array_char.push_back((char)v.value_int);
+				}
+				else if (v.type_value == TypeValue::Char) {
+					val.value_array_char.push_back((char)v.value_char);
+				}
+				else {
+					val.value_array_char.push_back((char)v.value_float);
+				}
+			}
+			else {
+				val.value_array_char.push_back(one.value_char);
+			}
 		}
 		else {
-			val.value_array_float.push_back(one.value_float);
+			if (one.name != "") {
+				StructValue v = semantic.Get_Value_ID(one.name);
+				if (v.type_value == TypeValue::Int) {
+					val.value_array_float.push_back((float)v.value_int);
+				}
+				else if (v.type_value == TypeValue::Char) {
+					val.value_array_float.push_back((float)v.value_char);
+				}
+				else {
+					val.value_array_float.push_back((float)v.value_float);
+				}
+			}
+			else {
+				val.value_array_float.push_back(one.value_float);
+			}
 		}
 	}
-	
+	int len;
+	if (type1 == "int") {
+		len = val.value_array_int.back();
+		val.value_array_int.pop_back();
+		if (len != val.value_array_int.size()) {
+			throw "Incorrect array lenth";
+		}
+	}
+	else if (type1 == "char") {
+		len = val.value_array_char.back();
+		val.value_array_char.pop_back();
+		if (len != val.value_array_char.size()) {
+			throw "Incorrect array lenth";
+		}
+	}
+	else {
+		len = val.value_array_float.back();
+		val.value_array_float.pop_back();
+		if (len != val.value_array_float.size()) {
+			throw "Incorrect array lenth";
+		}
+	}
 	operations.pop_back();
 	semantic.Push_Value_TID(name.name, val);
 }
 
-void Execution::var_(const Poliz& poliz, int& i) {
+void Execution::var_(const Poliz& poliz, int i) {
 	string type1 = poliz.data_[i].name.substr(4, poliz.data_[i].name.find(" ", 4) - 5);
 	StructPoliz name = operations.back();
 	operations.pop_back();
@@ -92,7 +238,9 @@ void Execution::var_(const Poliz& poliz, int& i) {
 }
 
 void Execution::expression_(const Poliz& poliz, int& i) {
+	if (poliz.Get_Value(i).name == "[]") {
 
+	}
 }
 
 void Execution::input_(const Poliz& poliz, int& i) {

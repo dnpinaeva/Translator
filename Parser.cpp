@@ -13,8 +13,8 @@ void Parser::start() {
 		throw current_lexeme;
 	}
 	semantic.Check_Main();
-	Execution execution(semantic);
-	execution.Get(*where);
+	//Execution execution(semantic);
+	//execution.Get(*where);
 }
 
 void Parser::program() {
@@ -808,6 +808,8 @@ void Parser::for_() {
 		polka.name = "";
 		polka.type = TypePoliz::operation_;
 		polka.value_int = 1;
+		polka.value_char = 1;
+		polka.value_float = 1;
 		where->Push_Poliz(polka);
 	}
 	where->Blanc();
@@ -840,6 +842,8 @@ void Parser::for_() {
 		polka.name = "";
 		polka.type = TypePoliz::operation_;
 		polka.value_int = 1;
+		polka.value_float = 1;
+		polka.value_char = 1;
 		where->Push_Poliz(polka);
 	}
 	{
@@ -1480,6 +1484,8 @@ void Parser::expression9() {
 				if (current_lexeme.value == "\n") {
 					polka.value_char = '\n';
 				}
+				polka.value_int = polka.value_char;
+				polka.value_float = polka.value_char;
 				where->Push_Poliz(polka);
 			}
 			semantic.Push_Stack(2, current_lexeme);
@@ -1488,6 +1494,8 @@ void Parser::expression9() {
 				StructPoliz polka;
 				polka.type = TypePoliz::operation_;
 				polka.value_int = stoi(current_lexeme.value);
+				polka.value_char = polka.value_int;
+				polka.value_float = polka.value_int;
 				where->Push_Poliz(polka);
 			}
 			semantic.Push_Stack(0, current_lexeme);
@@ -1496,6 +1504,8 @@ void Parser::expression9() {
 				StructPoliz polka;
 				polka.type = TypePoliz::operation_;
 				polka.value_float = stof(current_lexeme.value);
+				polka.value_int = polka.value_float;
+				polka.value_char = polka.value_float;
 				where->Push_Poliz(polka);
 			}
 			semantic.Push_Stack(1, current_lexeme);

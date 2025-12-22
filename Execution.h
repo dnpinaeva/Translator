@@ -20,7 +20,7 @@ private:
 	StructValue return_(const Poliz& poliz, int& i);
 	void map_(const Poliz& poliz, int& i);
 	void array_(const Poliz& poliz, int& i);
-	void var_(const Poliz& poliz, int& i);
+	void var_(const Poliz& poliz, int i);
 	void expression_(const Poliz& poliz, int& i);
 	void input_(const Poliz& poliz, int& i);
 	void print_(const Poliz& poliz, int& i);

@@ -36,6 +36,7 @@ public:
 	}
 	int Get_Position() { return (int)data_.size() - 1; }
 	void Write_Position(int position, StructPoliz to);
+	StructPoliz Get_Value(int ind) const { return data_[ind]; }
 	friend std::ostream& operator<< (std::ostream& out, const Poliz& other);
 private:
 	vector<StructPoliz> data_;

@@ -51,6 +51,16 @@ std::string SemanticAnalysis::Check_ID(const Lexeme& lex) {
 	throw "Id " + lex.value + " doesn't exist in string " + NumberString;
 }
 
+StructValue SemanticAnalysis::Get_Value_ID(const string& name) {
+	for (int i = (int)StackTID.size() - 1; i >= 0; --i) {
+		for (auto& el : StackTID[i]) {
+			if (el.name == name) {
+				return el.value;
+			}
+		}
+	}
+}
+
 void SemanticAnalysis::New_Func(const Lexeme& lex, const std::string& inner_name, const std::string& type) {
 	StructTf new_id(lex.value, inner_name, type);
 	NumberString = std::to_string(lex.line);
