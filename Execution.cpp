@@ -455,7 +455,6 @@ void Execution::call_(const Poliz& poliz, int& i) {
 }
 
 StructValue Execution::Get(const Poliz& poliz) {
-	semantic.Create_TID();
 	int i = 0;
 	for (; i < poliz.data_.size();++i) {
 		auto el = poliz.data_[i];
@@ -503,6 +502,7 @@ StructValue Execution::Get(const Poliz& poliz) {
 				continue;
 			}
 			else if (el.name == "call") {
+				semantic.Create_TID();
 				call_(poliz, i);
 				continue;
 			}
