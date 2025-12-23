@@ -94,9 +94,6 @@ void Parser::program() {
 					where->Push_Poliz(polka);
 				}
 			}
-			else {
-				function_notitle(lex, type1, type2);
-			}
 		}
 		else if (current_lexeme.value == "void") {
 			current_lexeme = lexer.get();
@@ -921,6 +918,7 @@ void Parser::print() {
 		StructPoliz polka;
 		polka.name = "";
 		polka.type = TypePoliz::operation_;
+		polka.type_number = TypeNumber::string_;
 		polka.value_string = current_lexeme.value;
 		where->Push_Poliz(polka);
 		current_lexeme = lexer.get();

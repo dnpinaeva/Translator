@@ -83,7 +83,7 @@ std::string SemanticAnalysis::Check_Call(const Lexeme& lex, const std::string& i
 	}
 	throw "Function " + lex.value + " with those parameters doesn't exist in string " + NumberString;
 }
-
+ 
 void SemanticAnalysis::Push_Stack(int type, Lexeme lex) {
 	if (lex.type != 0) lex.value = "";
 	Stack.push_back({ type, lex.value});

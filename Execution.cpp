@@ -1,6 +1,7 @@
 #include "Execution.h"
 #include "Poliz.h"
 #include <string>
+#include <algorithm>
 
 using std::string;
 
@@ -1024,11 +1025,14 @@ void Execution::print_(const Poliz& poliz, int i) {
 		if (one.type_number == TypeNumber::float_) {
 			cout << one.value_float;
 		}
-		if (one.type_number == TypeNumber::char_) {
+		else if (one.type_number == TypeNumber::char_) {
 			cout << one.value_char;
 		}
-		if (one.type_number == TypeNumber::int_) {
+		else if (one.type_number == TypeNumber::int_) {
 			cout << one.value_int;
+		}
+		else {
+			cout << one.value_string;
 		}
 	}
 	else {
@@ -1111,20 +1115,75 @@ void Execution::delete_(const Poliz& poliz, int i) {
 	}
 }
 
-void Execution::call_(const Poliz& poliz, int i) {
+void Execution::call_(const Poliz& poliz, int ii) {
 	StructPoliz Func = operations.back();
 	operations.pop_back();
 	vector<string> names;
-	vector<StructTid> params;
-	while (operations.back().type != TypePoliz::separator_) {
-		StructPoliz one= operations.back();
+	vector<StructValue> params_val;
+	int i = operations.size();
+	--i;
+	while (operations[i].type != TypePoliz::separator_) {
+		StructPoliz one = operations[i--];
 		if (one.name != "") {
 			StructValue v = *semantic.Get_Value_ID(one.name);
-			if (v.type_value )
+			if (v.type_value == TypeValue::ArrayInt || v.type_value == TypeValue::ArrayChar || v.type_value == TypeValue::ArrayFloat) {
+				if (v.value_int == 0) {
+					names.push_back("number[]");
+					params_val.push_back(v);
+					continue;
+				}
+			}
+			else if (v.type_value != TypeValue::Int && v.type_value != TypeValue::Char || v.type_value != TypeValue::Float)  {
+				if (v.value_int == 0 && v.value_float == 0.0) {
+					names.push_back("map");
+					params_val.push_back(v);
+					continue;
+				}
+			}
 		}
-		else {
-			one = get_operation_rvalue();
-			names.push_back("number");
+		one = get_operation_rvalue();
+		names.push_back("number");
+		StructValue v;
+		v.value_int = one.value_int;
+		v.value_char = one.value_char;
+		v.value_float = one.value_float;
+		params_val.push_back(v);
+	}
+	std::reverse(names.begin(), names.end());
+	std::reverse(params_val.begin(), params_val.end());
+	string inner_name = Func.name + " ";
+	for (auto& to : names) inner_name += to + " ";
+	for (auto& el : semantic.TF) {
+		if (el.inner_name == inner_name) {
+			for (int i = 0; i < el.params.size(); ++i) {
+				semantic.Push_ID(el.params[i].name, el.params[i].type, el.params[i].type_map);
+				semantic.Push_Value_TID(el.params[i].name, params_val[i]);
+			}
+			StructValue res = Get(el.poliz_function);
+			if (el.type_back != "void") {
+				StructPoliz polka;
+				polka.type = TypePoliz::operation_; 
+				if (res.type_value == TypeValue::Int) {
+					polka.type_number = TypeNumber::int_;
+					polka.value_int = res.value_int;
+					polka.value_char = polka.value_int;
+					polka.value_float = polka.value_int;
+				}
+				else if (res.type_value == TypeValue::Char) {
+					polka.type_number = TypeNumber::char_;
+					polka.value_int = res.value_char;
+					polka.value_char = res.value_char;
+					polka.value_float = res.value_char;
+				}
+				else if (res.type_value == TypeValue::Float) {
+					polka.type_number = TypeNumber::float_;
+					polka.value_int = res.value_char;
+					polka.value_char = res.value_char;
+					polka.value_float = res.value_char;
+				}
+				operations.push_back(polka);
+				return;
+			}
 		}
 	}
 }

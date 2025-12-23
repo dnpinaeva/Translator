@@ -11,7 +11,7 @@
 #include "Execution";
 
 enum class TypePoliz {plus_, operation_, move_, adress_, separator_};
-enum class TypeNumber {char_, int_, float_};
+enum class TypeNumber {char_, int_, float_, string_};
 
 using std::string;
 using std::vector;
