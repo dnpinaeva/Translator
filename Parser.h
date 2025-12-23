@@ -26,8 +26,8 @@ private:
 	void array_notitle(const string& name);
 	void function_notitle(const Lexeme& lex, const string& type1, string type2 = "");
 	void expression();
-	string parameters();
-	string parameters_description();
+	string parameters(vector<StructTid>& params);
+	string parameters_description(vector<StructTid>& params);
 	void block(bool is_tid_needed);
 	void map_notitle(const string& name);
 	void operator_(bool is_tid_needed = 0);

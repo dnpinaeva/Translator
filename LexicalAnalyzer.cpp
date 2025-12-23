@@ -177,7 +177,7 @@ using std::pair;
 //                    }
 //                    type = 8;
 //                    res = "comment";
-//                    //cout << type;
+//                    //out << type;
 //                    is_end = 1;
 //                    break;
 //                }
@@ -296,14 +296,14 @@ int main()
     //char* i = text;
     //for (; i < text + size_text - 1; ++i);
     //*i = '$';
-    //cout << size_text << "\n";
+    //out << size_text << "\n";
     //int type = -1;
     //current = text;
     ///*int ind = 0;
     //for (char* i = text; i < text + size_text; ++i) {
-    //    cout << *i << "\n";
+    //    out << *i << "\n";
     //    if (*i == '\r') {
-    //        cout << ind << "\n";
+    //        out << ind << "\n";
     //    }
     //    ++ind;
     //}*/
@@ -314,15 +314,16 @@ int main()
     //while (getline(in_f, s)) {
     //    trie.add(s);
     //}
-    //cout << trie.v.size() << "\n";
+    //out << trie.v.size() << "\n";
     LexicalAnalyzer lexer;
     lexer.load();
-    //cout << lexer.trie.v.size() << "\n";
+    //out << lexer.trie.v.size() << "\n";
 
     /*while (lexer.current < lexer.text + lexer.size_text) {
         Lexeme p = lexer.get();
-        cout << p.type << " " << p.value << "\n";
+        out << p.type << " " << p.value << "\n";
     }*/
+    fstream out("debugging.txt", std::ios::app);
     Parser parser(lexer);
     try {
         parser.start();
@@ -342,13 +343,14 @@ int main()
         cout << "semantic error:\n";
         cout << e << "\n";
     }
-    cout << "finish lexer\n";
-    cout << "global\n";
-    cout << parser.poliz;
+    out << "finish lexer\n";
+    out << "global\n";
+    out << parser.poliz;
     for (auto& to : parser.semantic.TF) {
-        cout << to.name << " " << to.inner_name << "\n";
-        cout << to.poliz_function;
+        out << to.name << " " << to.inner_name << "\n";
+        out << to.poliz_function;
     }
+    out.close();
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"

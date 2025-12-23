@@ -17,17 +17,17 @@ public:
 private:
 	SemanticAnalysis semantic;
 	vector<StructPoliz> operations;
-	StructValue return_(const Poliz& poliz, int& i);
-	void map_(const Poliz& poliz, int& i);
-	void array_(const Poliz& poliz, int& i);
+	StructValue return_(const Poliz& poliz, int i);
+	void map_(const Poliz& poliz, int i);
+	void array_(const Poliz& poliz, int i);
 	void var_(const Poliz& poliz, int i);
-	void expression_(const Poliz& poliz, int& i);
-	void input_(const Poliz& poliz, int& i);
-	void print_(const Poliz& poliz, int& i);
-	void delete_(const Poliz& poliz, int& i);
-	void call_(const Poliz& poliz, int& i);
+	void expression_(const Poliz& poliz, int i);
+	void input_(const Poliz& poliz, int i);
+	void print_(const Poliz& poliz, int i);
+	void delete_(const Poliz& poliz, int i);
+	void call_(const Poliz& poliz, int i);
 
-	StructPoliz get_operation_value();
+	StructPoliz get_operation_rvalue();
 };
 
 #endif EXECUTION_H

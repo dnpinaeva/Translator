@@ -9,6 +9,7 @@
 #include "Trie.h"
 
 using std::cout;
+using std::ofstream;
 using std::string;
 using std::set;
 using std::pair;
@@ -85,7 +86,9 @@ public:
         while (p.type == 8) {
             p = this->get_lexeme();
         }
-        cout << p.value << " " << p.type << "\n";
+        ofstream out("debugging.txt");
+        out << p.value << " " << p.type << "\n";
+        out.close();
         ++p.line;
         return p;
     }

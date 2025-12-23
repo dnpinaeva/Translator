@@ -8,6 +8,7 @@
 #include <string>
 
 using std::pair;
+using std::cout;
 using std::make_pair;
 using std::max;
 
@@ -99,13 +100,27 @@ template<typename T1, typename T2> T2 get_func(Node2<T1, T2>* root, T1 key) {
 }
 
 template<typename T1, typename T2> Node2<T1, T2>* insert_func(Node2<T1, T2>* root, T1 key, T2 val) {
-    if (find_func(root, key)) return root;
-    pair<Node2<T1, T2>*, Node2<T1, T2>*> res = split_func(root, key);
-    Node2<T1, T2>* l = res.first;
-    Node2<T1, T2>* r = res.second;
-    Node2<T1, T2>* v = new Node2<T1, T2>(key, val);
-    Node2<T1, T2>* ans = merge_func(l, v);
-    return merge_func(ans, r);
+    if (root == nullptr) {
+        pair<Node2<T1, T2>*, Node2<T1, T2>*> res = split_func(root, key);
+        Node2<T1, T2>* l = res.first;
+        Node2<T1, T2>* r = res.second;
+        Node2<T1, T2>* v = new Node2<T1, T2>(key, val);
+        Node2<T1, T2>* ans = merge_func(l, v);
+        return merge_func(ans, r);
+    }
+    if (root->key == key) {
+        root->value = val;
+        return root;
+    }
+    if (root->key > key) return insert_func(root->left, key, val);
+    return insert_func(root->right, key, val);
+}
+
+template<typename T1, typename T2> void print_func(Node2<T1, T2>* root) {
+    if (root == nullptr) return;
+    print_func(root->left);
+    cout << "{" << root->key << ": " << root->value << "} ";
+    print_func(root->right);
 }
 
 template<typename T1, typename T2> Node2<T1, T2>* erase_func(Node2<T1, T2>* root, T1 key) {
@@ -140,6 +155,11 @@ public:
         root->clear(root);
         root = other.root;
         return *this;
+    }
+    void print_treap() {
+        cout << "{";
+        print_func(root);
+        cout << "}";
     }
 private:
     Node2<T1, T2>* root;

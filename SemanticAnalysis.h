@@ -105,8 +105,9 @@ struct StructTf {
 	std::string name, inner_name, type_back;
 	Poliz poliz_function;
 	StructValue val_return;
-	StructTf(const std::string& name, const std::string& inner_name, const std::string& type_back) :
-		name(name), inner_name(inner_name), type_back(type_back) {}
+	vector<StructTid> params;
+	StructTf(const std::string& name, const std::string& inner_name, const std::string& type_back, const vector<StructTid>& params) :
+		name(name), inner_name(inner_name), type_back(type_back), params(params) {}
 };
 
 struct StructStack {
@@ -124,7 +125,7 @@ public:
 	void Delete_TID();
 	std::string Check_ID(const Lexeme& name);
 	StructValue* Get_Value_ID(const string& name);
-	void New_Func(const Lexeme& name, const std::string& inner_name, const std::string& type);
+	void New_Func(const Lexeme& name, const std::string& inner_name, const std::string& type, const vector<StructTid>&);
 	std::string Check_Call(const Lexeme& name, const std::string& inner_name);
 	void Push_Stack(int type, Lexeme lex);
 	void Check_Bin(int number_line, Poliz* where);

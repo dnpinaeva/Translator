@@ -61,8 +61,8 @@ StructValue* SemanticAnalysis::Get_Value_ID(const string& name) {
 	}
 }
 
-void SemanticAnalysis::New_Func(const Lexeme& lex, const std::string& inner_name, const std::string& type) {
-	StructTf new_id(lex.value, inner_name, type);
+void SemanticAnalysis::New_Func(const Lexeme& lex, const std::string& inner_name, const std::string& type, const vector<StructTid>& params) {
+	StructTf new_id(lex.value, inner_name, type, params);
 	NumberString = std::to_string(lex.line);
 	for (auto& el : TF) {
 		if (el.inner_name == inner_name) {
@@ -74,9 +74,9 @@ void SemanticAnalysis::New_Func(const Lexeme& lex, const std::string& inner_name
 
 std::string SemanticAnalysis::Check_Call(const Lexeme& lex, const std::string& inner_name) {
 	NumberString = std::to_string(lex.line);
-	cout << "check_call: \"" << inner_name << "\"\n";
+	// cout << "check_call: \"" << inner_name << "\"\n";
 	for (auto& el : TF) {
-		cout << "\"" << el.inner_name << "\"" << "\n";
+		// cout << "\"" << el.inner_name << "\"" << "\n";
 		if (el.inner_name == inner_name) {
 			return el.type_back;
 		}
