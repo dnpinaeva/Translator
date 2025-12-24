@@ -6,9 +6,19 @@
 using std::string;
 
 StructValue Execution::return_(const Poliz& poliz, int i) {
-
-	semantic.Delete_TID();
-	return StructValue();
+	StructPoliz one = get_operation_rvalue();
+	if (one.type_number == TypeNumber::int_) {
+		semantic.Delete_TID();
+		return StructValue(one.value_int);
+	}
+	if (one.type_number == TypeNumber::char_) {
+		semantic.Delete_TID();
+		return StructValue(one.value_char);
+	}
+	if (one.type_number == TypeNumber::float_) {
+		semantic.Delete_TID();
+		return StructValue(one.value_float);
+	}
 }
 
 void Execution::map_(const Poliz& poliz, int i) {
