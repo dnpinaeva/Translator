@@ -39,7 +39,7 @@ struct StructValue {
 	Treap<char, int> value_char_int;
 	Treap<char, float> value_char_float;
 	Treap<char, char> value_char_char;
-	StructValue() : value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {}
+	StructValue() : value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() { }
 	StructValue(int value_int) : value_int(value_int), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char(), type_value(TypeValue::Int) {}
 	StructValue(float value_float) : type_value(TypeValue::Float), value_int(0), value_char(0), value_float(value_float), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {}
 	StructValue(char value_char) : type_value(TypeValue::Char), value_int(0), value_char(value_char), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {}

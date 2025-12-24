@@ -13,10 +13,9 @@ extern std::ostream& operator<< (std::ostream& out, const StructPoliz& other) {
 	if (other.type == TypePoliz::operation_) {
 		type = "operation_";
 	}
-	out << other.name << " " << type << " " << other.value_int << " " << other.value_float << " " << other.value_char << " " << other.value_string << " " << (int)other.type_number;
+	out << other.name << " " << type << " " << other.value_int << " " << other.value_float << " " << other.value_char << " type_number:" << other.value_string << " " << (int)other.type_number;
 	return out;
 }
-
 
 extern std::ostream& operator<< (std::ostream& out, const Poliz& other) {
 	out << "{\n";
@@ -58,7 +57,7 @@ StructValue Execution::return_(const Poliz& poliz, int i, string type) {
 }
 
 void Execution::map_(const Poliz& poliz, int i) {
-	string type1 = poliz.data_[i].name.substr(4, poliz.data_[i].name.find(" ", 4) - 5);
+	string type1 = poliz.data_[i].name.substr(4, poliz.data_[i].name.find(" ", 4) - 4);
 	string type2 = poliz.data_[i].name.substr(poliz.data_[i].name.find(" ", 4) + 1);
 	StructPoliz name = operations.back();
 	operations.pop_back();
@@ -70,34 +69,43 @@ void Execution::map_(const Poliz& poliz, int i) {
 		if (type1 == "int") {
 			if (type2 == "int") {
 				val.value_int_int.insert(v1.value_int, v2.value_int);
+				val.type_value = TypeValue::MapIntInt;
 			}
 			else if (type2 == "char") {
 				val.value_int_char.insert(v1.value_int, v2.value_char);
+				val.type_value = TypeValue::MapIntChar;
 			}
 			else {
 				val.value_int_float.insert(v1.value_int, v2.value_float);
+				val.type_value = TypeValue::MapIntFloat;
 			}
 		}
 		else if (type1 == "char") {
 			if (type2 == "int") {
 				val.value_char_int.insert(v1.value_char, v2.value_int);
+				val.type_value = TypeValue::MapCharInt;
 			}
 			else if (type2 == "char") {
 				val.value_char_char.insert(v1.value_char, v2.value_char);
+				val.type_value = TypeValue::MapCharChar;
 			}
 			else {
 				val.value_char_float.insert(v1.value_char, v2.value_float);
+				val.type_value = TypeValue::MapCharFloat;
 			}
 		}
 		else {
 			if (type2 == "int") {
 				val.value_float_int.insert(v1.value_float, v2.value_int);
+				val.type_value = TypeValue::MapFloatInt;
 			}
 			else if (type2 == "char") {
 				val.value_float_char.insert(v1.value_float, v2.value_char);
+				val.type_value = TypeValue::MapFloatChar;
 			}
 			else {
 				val.value_float_float.insert(v1.value_float, v2.value_float);
+				val.type_value = TypeValue::MapFloatChar;
 			}
 		}
 	}
@@ -106,7 +114,7 @@ void Execution::map_(const Poliz& poliz, int i) {
 }
 
 void Execution::array_(const Poliz& poliz, int i) {
-	string type1 = poliz.data_[i].name.substr(4, poliz.data_[i].name.find(" ", 4) - 5);
+	string type1 = poliz.data_[i].name.substr(6, poliz.data_[i].name.find(" ", 6) - 5);
 	StructPoliz name = operations.back();
 	operations.pop_back();
 	semantic.Push_ID(name.name, type1);
@@ -129,13 +137,17 @@ void Execution::array_(const Poliz& poliz, int i) {
 	operations.pop_back();
 	if (type1 == "int") {
 		if (len != val.value_array_int.size()) throw "Incorrect len of array " + poliz.data_[i].name;
+		val.type_value = TypeValue::ArrayInt;
 	}
 	if (type1 == "float") {
 		if (len != val.value_array_float.size()) throw "Incorrect len of array " + poliz.data_[i].name;
+		val.type_value = TypeValue::ArrayFloat;
 	}
 	if (type1 == "char") {
 		if (len != val.value_array_char.size()) throw "Incorrect len of array " + poliz.data_[i].name;
+		val.type_value = TypeValue::ArrayChar;
 	}
+	// cout << name.name << (int)val.type_value << endl;
 	semantic.Push_Value_TID(name.name, val);
 }
 
@@ -143,7 +155,7 @@ void Execution::var_(const Poliz& poliz, int i) {
 	string type1 = poliz.data_[i].name.substr(4, poliz.data_[i].name.find(" ", 4) - 5);
 	StructPoliz name = operations.back();
 	operations.pop_back();
-	cout << name.name << " " << type1 << "-\n";
+	// cout << name.name << " " << type1 << "-\n";
 	semantic.Push_ID(name.name, type1);
 }
 
@@ -861,11 +873,12 @@ void Execution::expression_(const Poliz& poliz, int i) {
 	}
 	else if (op == "=") {
 		StructPoliz two = get_operation_rvalue();
-		cout << two << endl;
+		// cout << two << endl;
 		StructPoliz one = operations.back();
-		cout << one << "\n";
+		operations.pop_back();
+		// cout << one << "\n";
 		StructValue* v = semantic.Get_Value_ID(one.name);
-		cout << (int)v->type_value << endl;
+		// cout << (int)v->type_value << endl;
 		if (v->type_value == TypeValue::Int || v->type_value == TypeValue::Char || v->type_value == TypeValue::Float) {
 			v->value_char = two.value_char;
 			v->value_float = two.value_float;
@@ -927,6 +940,7 @@ void Execution::expression_(const Poliz& poliz, int i) {
 		operations.pop_back();
 		StructValue* v = semantic.Get_Value_ID(one.name);
 		int tmp;
+		cout << (int)v->type_value << " -type\n";
 		if (v->type_value == TypeValue::MapIntInt) {
 			tmp = v->value_int_int.find(two.value_int);
 		}
@@ -1096,19 +1110,34 @@ void Execution::print_(const Poliz& poliz, int i) {
 			cout << v.value_float;
 		}
 		else if (v.type_value == TypeValue::ArrayInt) {
-			cout << "[";
-			for (auto& to : v.value_array_int) cout << to << " ";
-			cout << "]";
+			if (one.type_number == TypeNumber::not_number_) {
+				cout << "[";
+				for (auto& to : v.value_array_int) cout << to << " ";
+				cout << "]";
+			}
+			else {
+				cout << v.value_array_int[v.value_int];
+			}
 		}
 		else if (v.type_value == TypeValue::ArrayChar) {
-			cout << "[";
-			for (auto& to : v.value_array_char) cout << to << " ";
-			cout << "]";
+			if (one.type_number == TypeNumber::not_number_) {
+				cout << "[";
+				for (auto& to : v.value_array_char) cout << to << " ";
+				cout << "]";
+			}
+			else {
+				cout << v.value_array_char[v.value_int];
+			}
 		}
 		else if (v.type_value == TypeValue::ArrayFloat) {
-			cout << "[";
-			for (auto& to : v.value_array_float) cout << to << " ";
-			cout << "]";
+			if (one.type_number == TypeNumber::not_number_) {
+				cout << "[";
+				for (auto& to : v.value_array_float) cout << to << " ";
+				cout << "]";
+			}
+			else {
+				cout << v.value_array_float[v.value_int];
+			}
 		}
 		else if (v.type_value == TypeValue::MapIntInt) {
 			v.value_int_int.print_treap();
