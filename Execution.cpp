@@ -10,8 +10,10 @@ extern std::ostream& operator<< (std::ostream& out, const StructPoliz& other) {
 	if (other.type == TypePoliz::move_) type = "move_";
 	if (other.type == TypePoliz::adress_) type = "adress_";
 	if (other.type == TypePoliz::separator_) type = "separator_";
-	if (other.type == TypePoliz::operation_) type = "operation_";
-	out << other.name << " " << type << " " << other.value_int << " " << other.value_float << " " << other.value_char << " " << other.value_string;
+	if (other.type == TypePoliz::operation_) {
+		type = "operation_";
+	}
+	out << other.name << " " << type << " " << other.value_int << " " << other.value_float << " " << other.value_char << " " << other.value_string << " " << (int)other.type_number;
 	return out;
 }
 
@@ -33,21 +35,26 @@ StructValue Execution::return_(const Poliz& poliz, int i, string type) {
 	if (type == "void") {
 		return StructValue();
 	}
-	cout << operations.size() << std::endl;
+	// cout << operations.size() << std::endl;
 	StructPoliz one = get_operation_rvalue();
-	cout << "AAAA" << std::endl;
+	// cout << "AAAA" << std::endl;
 	if (one.type_number == TypeNumber::int_) {
 		semantic.Delete_TID();
-		return StructValue(one.value_int);
+		StructValue res(one.value_int);
+		res.type_value = TypeValue::Int;
+		return res;
 	}
 	if (one.type_number == TypeNumber::char_) {
 		semantic.Delete_TID();
-		return StructValue(one.value_char);
+		StructValue res(one.value_float);
+		res.type_value = TypeValue::Float;
+		return res;
 	}
 	if (one.type_number == TypeNumber::float_) {
 		semantic.Delete_TID();
 		return StructValue(one.value_float);
 	}
+	throw "return_ not number";
 }
 
 void Execution::map_(const Poliz& poliz, int i) {
@@ -136,6 +143,7 @@ void Execution::var_(const Poliz& poliz, int i) {
 	string type1 = poliz.data_[i].name.substr(4, poliz.data_[i].name.find(" ", 4) - 5);
 	StructPoliz name = operations.back();
 	operations.pop_back();
+	cout << name.name << " " << type1 << "-\n";
 	semantic.Push_ID(name.name, type1);
 }
 
@@ -742,10 +750,10 @@ void Execution::expression_(const Poliz& poliz, int i) {
 		StructPoliz one = get_operation_rvalue();
 		int tmp;
 		if (one.type_number == TypeNumber::float_ || one.type_number == TypeNumber::float_) {
-			tmp = one.value_float == two.value_float;
+			tmp = one.value_float != two.value_float;
 		}
 		else {
-			tmp = one.value_int == two.value_int;
+			tmp = one.value_int != two.value_int;
 		}
 		StructPoliz res;
 		res.type = TypePoliz::operation_;
@@ -760,10 +768,10 @@ void Execution::expression_(const Poliz& poliz, int i) {
 		StructPoliz one = get_operation_rvalue();
 		int tmp;
 		if (one.type_number == TypeNumber::float_ || one.type_number == TypeNumber::float_) {
-			tmp = one.value_float == two.value_float;
+			tmp = one.value_float > two.value_float;
 		}
 		else {
-			tmp = one.value_int == two.value_int;
+			tmp = one.value_int > two.value_int;
 		}
 		StructPoliz res;
 		res.type = TypePoliz::operation_;
@@ -778,10 +786,10 @@ void Execution::expression_(const Poliz& poliz, int i) {
 		StructPoliz one = get_operation_rvalue();
 		int tmp;
 		if (one.type_number == TypeNumber::float_ || one.type_number == TypeNumber::float_) {
-			tmp = one.value_float == two.value_float;
+			tmp = one.value_float < two.value_float;
 		}
 		else {
-			tmp = one.value_int == two.value_int;
+			tmp = one.value_int < two.value_int;
 		}
 		StructPoliz res;
 		res.type = TypePoliz::operation_;
@@ -796,10 +804,10 @@ void Execution::expression_(const Poliz& poliz, int i) {
 		StructPoliz one = get_operation_rvalue();
 		int tmp;
 		if (one.type_number == TypeNumber::float_ || one.type_number == TypeNumber::float_) {
-			tmp = one.value_float == two.value_float;
+			tmp = one.value_float >= two.value_float;
 		}
 		else {
-			tmp = one.value_int == two.value_int;
+			tmp = one.value_int >= two.value_int;
 		}
 		StructPoliz res;
 		res.type = TypePoliz::operation_;
@@ -814,10 +822,10 @@ void Execution::expression_(const Poliz& poliz, int i) {
 		StructPoliz one = get_operation_rvalue();
 		int tmp;
 		if (one.type_number == TypeNumber::float_ || one.type_number == TypeNumber::float_) {
-			tmp = one.value_float == two.value_float;
+			tmp = one.value_float <= two.value_float;
 		}
 		else {
-			tmp = one.value_int == two.value_int;
+			tmp = one.value_int <= two.value_int;
 		}
 		StructPoliz res;
 		res.type = TypePoliz::operation_;
@@ -853,10 +861,11 @@ void Execution::expression_(const Poliz& poliz, int i) {
 	}
 	else if (op == "=") {
 		StructPoliz two = get_operation_rvalue();
+		cout << two << endl;
 		StructPoliz one = operations.back();
-		operations.pop_back();
-		operations.push_back(one);
+		cout << one << "\n";
 		StructValue* v = semantic.Get_Value_ID(one.name);
+		cout << (int)v->type_value << endl;
 		if (v->type_value == TypeValue::Int || v->type_value == TypeValue::Char || v->type_value == TypeValue::Float) {
 			v->value_char = two.value_char;
 			v->value_float = two.value_float;
@@ -1060,6 +1069,7 @@ void Execution::print_(const Poliz& poliz, int i) {
 	}
 	StructPoliz one = operations.back();
 	operations.pop_back();
+	// cout << one << endl;
 	if (one.name == "") {
 		if (one.type_number == TypeNumber::float_) {
 			cout << one.value_float;
@@ -1071,7 +1081,7 @@ void Execution::print_(const Poliz& poliz, int i) {
 			cout << one.value_int;
 		}
 		else {
-			cout << one.value_string;
+			cout << one.value_string << " -ratata";
 		}
 	}
 	else {
@@ -1161,23 +1171,26 @@ void Execution::call_(const Poliz& poliz, int ii) {
 	--i;
 	while (operations[i].type != TypePoliz::separator_) {
 		StructPoliz one = operations[i--];
-		if (one.name != "") {
+		if (one.name != "" && one.type_number == TypeNumber::not_number_) {
 			operations.pop_back();
 			StructValue v = *semantic.Get_Value_ID(one.name);
-			if (v.type_value == TypeValue::ArrayInt || v.type_value == TypeValue::ArrayChar || v.type_value == TypeValue::ArrayFloat) {
-				params_val.push_back(v);
-				continue;
-			}
-			else if (v.type_value != TypeValue::Int && v.type_value != TypeValue::Char && v.type_value != TypeValue::Float)  {
-				params_val.push_back(v);
-				continue;
-			}
+			params_val.push_back(v);
+			continue;
 		}
 		one = get_operation_rvalue();
 		StructValue v;
 		v.value_int = one.value_int;
 		v.value_char = one.value_char;
 		v.value_float = one.value_float;
+		if (one.type_number == TypeNumber::int_) {
+			v.type_value = TypeValue::Int;
+		}
+		if (one.type_number == TypeNumber::float_) {
+			v.type_value = TypeValue::Float;
+		}
+		if (one.type_number == TypeNumber::char_) {
+			v.type_value = TypeValue::Char;
+		}
 		params_val.push_back(v);
 	}
 	operations.pop_back();
@@ -1191,6 +1204,9 @@ void Execution::call_(const Poliz& poliz, int ii) {
 				semantic.Push_Value_TID(el.params[i].name, params_val[i]);
 			}
 			StructValue res = Get(el.poliz_function, el.type_back);
+			/*if (res.value_char_char.root == nullptr) {
+				cout << "tttttttttttttttttttt\n";
+			}*/
 			// cout << "FFFFFF" << endl;
 			while (operations.size() > old_size) operations.pop_back();
 			// cout << "GGGGGGGGGGGGG" << endl;
@@ -1215,11 +1231,11 @@ void Execution::call_(const Poliz& poliz, int ii) {
 					polka.value_char = res.value_char;
 					polka.value_float = res.value_char;
 				}
-				cout << "NNNNN" << endl;
+				// cout << "NNNNN" << endl;
 				operations.push_back(polka);
-				cout << "FFF" << endl;
+				// cout << "FFF" << endl;
 			}
-				cout << "LLL" << endl;
+				// cout << "LLL" << endl;
 				return;
 		}
 	}
@@ -1233,7 +1249,7 @@ StructValue Execution::Get(const Poliz& poliz, string type) {
 		operations.push_back(polka);
 	}
 	for (; i < poliz.data_.size();++i) {
-		cout << "KK" << endl;
+		// cout << "KK" << endl;
 		auto el = poliz.data_[i];
 		{
 			ofstream out("debugging.txt", std::ios::app);
@@ -1247,7 +1263,17 @@ StructValue Execution::Get(const Poliz& poliz, string type) {
 			continue;
 		}
 		if (el.type == TypePoliz::move_) {
-			i = poliz.data_[i - 1].value_int;
+			if (el.name == "!") {
+				i = poliz.data_[i - 1].value_int;
+				--i;
+			}
+			else {
+				StructPoliz exp = get_operation_rvalue();
+				if (!exp.value_int) {
+					i = poliz.data_[i - 1].value_int;
+					--i;
+				}
+			}
 			continue;
 		}
 		if (el.type == TypePoliz::operation_) {
@@ -1286,7 +1312,7 @@ StructValue Execution::Get(const Poliz& poliz, string type) {
 				semantic.Create_TID();
 				try {
 					call_(poliz, i);
-					cout << "JJJJJJJ" << endl;
+					// cout << "JJJJJJJ" << endl;
 				}
 				catch (...) {
 

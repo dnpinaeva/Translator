@@ -22,8 +22,8 @@ struct Node2 {
         value = other.value;
         priority = other.priority;
         height = other.height;
-        left = other.left;
-        right = other.right;
+        left = nullptr;
+        right = nullptr;
     }
     Node2(Type1 key, Type2 val) : left(nullptr), right(nullptr), key(key), value(val), height(0) {
         std::random_device rd;
@@ -35,7 +35,7 @@ struct Node2 {
         std::mt19937 rnd(rd());
         priority = rnd();
     }
-    Node2<Type1, Type2> operator=(const Node2<Type1, Type2>& other) {
+    Node2<Type1, Type2>& operator=(const Node2<Type1, Type2>& other) {
         left = other.left;
         right = other.right;
         key = other.key;
@@ -152,8 +152,9 @@ template<typename T1, typename T2> Node2<T1, T2>* copy_func(Node2<T1, T2>* node)
     if (node == nullptr) {
         return nullptr;
     }
-    Node2<T1, T2>* new_node = new Node2<T1, T2>;
-    new_node = node;
+    Node2<T1, T2>* new_node = new Node2<T1, T2>(node->key, node->value);
+    new_node->priority = node->priority;
+    new_node->height = node->height;
     new_node->left = copy_func(node->left);
     new_node->right = copy_func(node->right);
     return new_node;
@@ -163,7 +164,7 @@ template<typename T1, typename T2> Node2<T1, T2>* copy_func(Node2<T1, T2>* node)
 template<typename T1, typename T2>
 class Treap {
 public:
-    Treap() : root(NULL) {};
+    Treap() : root(nullptr) {};
     Treap(const Treap& other) {
         root = copy_func(other.root);
     }
@@ -185,9 +186,8 @@ public:
     T2 get(T1 key) {
         return get_func(root, key);
     }
-    Treap operator=(const Treap& other) {
-        root->clear(root);
-        root = other.root;
+    Treap& operator=(const Treap& other) {
+        root = copy_func(other.root);
         return *this;
     }
     void print_treap() {
@@ -196,12 +196,13 @@ public:
         cout << "}";
     }
     ~Treap() {
-        std::cout << "~Treap" << std::endl;
+        // std::cout << "~Treap" << std::endl;
         if (root != nullptr) {
             check_func(root);
             root->clear(root);
         }
     }
-private:
     Node2<T1, T2>* root;
+private:
+    
 };

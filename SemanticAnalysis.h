@@ -40,47 +40,86 @@ struct StructValue {
 	Treap<char, float> value_char_float;
 	Treap<char, char> value_char_char;
 	StructValue() : value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {}
-	StructValue(int value_int) : value_int(value_int), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {}
-	StructValue(float value_float) : value_int(0), value_char(0), value_float(value_float), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {}
-	StructValue(char value_char) : value_int(0), value_char(value_char), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {}
-	StructValue(const vector<int>& value) : value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
+	StructValue(int value_int) : value_int(value_int), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char(), type_value(TypeValue::Int) {}
+	StructValue(float value_float) : type_value(TypeValue::Float), value_int(0), value_char(0), value_float(value_float), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {}
+	StructValue(char value_char) : type_value(TypeValue::Char), value_int(0), value_char(value_char), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {}
+	StructValue(const vector<int>& value) : type_value(TypeValue::ArrayInt), value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
 		value_array_int = value;
 	}
-	StructValue(const vector<float>& value) : value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
+	StructValue(const vector<float>& value) : type_value(TypeValue::ArrayFloat), value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
 		value_array_float = value;
 	}
-	StructValue(const vector<char>& value) : value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
+	StructValue(const vector<char>& value) : type_value(TypeValue::ArrayChar), value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
 		value_array_char = value;
 	}
-	StructValue(const Treap<int, int>& value) : value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
+	StructValue(const Treap<int, int>& value) : type_value(TypeValue::MapIntInt), value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
 		value_int_int = value;
 	}
-	StructValue(const Treap<int, float>& value) : value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
+	StructValue(const Treap<int, float>& value) : type_value(TypeValue::MapIntFloat),  value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
 		value_int_float = value;
 	}
-	StructValue(const Treap<int, char>& value) : value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
+	StructValue(const Treap<int, char>& value) : type_value(TypeValue::MapIntChar), value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
 		value_int_char = value;
 	}
-	StructValue(const Treap<float, int>& value) : value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
+	StructValue(const Treap<float, int>& value) : type_value(TypeValue::MapFloatInt), value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
 		value_float_int = value;
 	}
-	StructValue(const Treap<float, float>& value) : value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
+	StructValue(const Treap<float, float>& value) : type_value(TypeValue::MapFloatFloat), value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
 		value_float_float = value;
 	}
-	StructValue(const Treap<float, char>& value) : value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
+	StructValue(const Treap<float, char>& value) : type_value(TypeValue::MapFloatChar), value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
 		value_float_char = value;
 	}
-	StructValue(const Treap<char, int>& value) : value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
+	StructValue(const Treap<char, int>& value) : type_value(TypeValue::MapCharInt), value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
 		value_char_int = value;
 	}
-	StructValue(const Treap<char, float>& value) : value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
+	StructValue(const Treap<char, float>& value) : type_value(TypeValue::MapCharFloat), value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
 		value_char_float = value;
 	}
-	StructValue(const Treap<char, char>& value) : value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
+	StructValue(const Treap<char, char>& value) : type_value(TypeValue::MapCharChar), value_int(0), value_char(0), value_float(0), is_initialized(1), value_int_int(), value_int_float(), value_int_char(), value_char_int(), value_char_float(), value_char_char(), value_float_int(), value_float_float(), value_float_char() {
 		value_char_char = value;
 	}
 	~StructValue(){
-		std::cout << "~StructValue" << std::endl;
+		// std::cout << "~StructValue" << std::endl;
+	}
+	StructValue(const StructValue& other) {
+		is_initialized = other.is_initialized;
+		type_value = other.type_value;
+		value_int = other.value_int;
+		value_float = other.value_float;
+		value_char = other.value_char;
+		value_array_int = other.value_array_int;
+		value_array_float = other.value_array_float;
+		value_array_char = other.value_array_char;
+		value_int_int = other.value_int_int;
+		value_int_float = other.value_int_float;
+		value_int_char = other.value_int_char;
+		value_float_int = other.value_float_int;
+		value_float_float = other.value_float_float;
+		value_float_char = other.value_float_char;
+		value_char_int = other.value_char_int;
+		value_char_float = other.value_char_float;
+		value_char_char = other.value_char_char;
+	}
+	StructValue& operator=(const StructValue& other) {
+		is_initialized = other.is_initialized;
+		type_value = other.type_value;
+		value_int = other.value_int;
+		value_float = other.value_float;
+		value_char = other.value_char;
+		value_array_int = other.value_array_int;
+		value_array_float = other.value_array_float;
+		value_array_char = other.value_array_char;
+		value_int_int = other.value_int_int;
+		value_int_float = other.value_int_float;
+		value_int_char = other.value_int_char;
+		value_float_int = other.value_float_int;
+		value_float_float = other.value_float_float;
+		value_float_char = other.value_float_char;
+		value_char_int = other.value_char_int;
+		value_char_float = other.value_char_float;
+		value_char_char = other.value_char_char;
+		return *this;
 	}
 };
 

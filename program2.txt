@@ -1,8 +1,11 @@
-int max(int a, int b) {
- return a;
+int power(int a, int n) {
+if (n == 0) return 1;
+if (n == 1) return a;
+int res = power(a, n / 2);
+return res * res * power(a, n % 2);
 }
 
 int main() {    
-max(5, 7);
+print(power(2, 10));
     return 0;
 }

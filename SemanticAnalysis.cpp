@@ -25,6 +25,57 @@ void SemanticAnalysis::Push_ID(const Lexeme& lex, const std::string& type, std::
 			throw "Id " + lex.value + " already exists in string " + NumberString;
 		}
 	}
+	if (type == "int") {
+		if (type2 == "") {
+			new_id.value.type_value = TypeValue::Int;
+		}
+		if (type2 == "int") {
+			new_id.value.type_value = TypeValue::MapIntInt;
+		}
+		if (type2 == "float") {
+			new_id.value.type_value = TypeValue::MapIntFloat;
+		}
+		if (type2 == "char") {
+			new_id.value.type_value = TypeValue::MapIntChar;
+		}
+	}
+	if (type == "float") {
+		if (type2 == "") {
+			new_id.value.type_value = TypeValue::Float;
+		}
+		if (type2 == "int") {
+			new_id.value.type_value = TypeValue::MapFloatInt;
+		}
+		if (type2 == "float") {
+			new_id.value.type_value = TypeValue::MapFloatFloat;
+		}
+		if (type2 == "char") {
+			new_id.value.type_value = TypeValue::MapFloatChar;
+		}
+	}
+	if (type == "char") {
+		if (type2 == "") {
+			new_id.value.type_value = TypeValue::Char;
+		}
+		if (type2 == "int") {
+			new_id.value.type_value = TypeValue::MapCharInt;
+		}
+		if (type2 == "float") {
+			new_id.value.type_value = TypeValue::MapCharFloat;
+		}
+		if (type2 == "char") {
+			new_id.value.type_value = TypeValue::MapCharChar;
+		}
+	}
+	if (type == "array int") {
+		new_id.value.type_value = TypeValue::ArrayInt;
+	}
+	if (type == "array float") {
+		new_id.value.type_value = TypeValue::ArrayFloat;
+	}
+	if (type == "array char") {
+		new_id.value.type_value = TypeValue::Char;
+	}
 	StackTID.back().push_back(new_id);
 
 }
