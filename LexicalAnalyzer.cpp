@@ -261,29 +261,6 @@ using std::pair;
 //}
 
 
-extern std::ostream& operator<< (std::ostream& out, const StructPoliz& other) {
-    std::string type = "";
-    if (other.type == TypePoliz::plus_) type = "plus_";
-    if (other.type == TypePoliz::move_) type = "move_";
-    if (other.type == TypePoliz::adress_) type = "adress_";
-    if (other.type == TypePoliz::separator_) type = "separator_";
-    if (other.type == TypePoliz::operation_) type = "operation_";
-    out << other.name << " " << type << " " << other.value_int << " " << other.value_float << " " << other.value_char << " " << other.value_string;
-    return out;
-}
-
-
-extern std::ostream& operator<< (std::ostream& out, const Poliz& other) {
-    out << "{\n";
-    out << other.data_.size() << "\n";
-    int i = 0;
-    for (auto& to : other.data_) {
-        out << i++ << " " << to << std::endl;
-    }
-    out << "}\n";
-    return out;
-}
-
 int main()
 {
     //std::ifstream in("program2.txt", std::ios::binary);
@@ -351,6 +328,7 @@ int main()
         out << to.poliz_function;
     }
     out.close();
+    parser.execution_function();
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"

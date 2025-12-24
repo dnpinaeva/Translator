@@ -1,12 +1,41 @@
 #include "Execution.h"
 #include "Poliz.h"
 #include <string>
+#include <fstream>
 #include <algorithm>
+
+extern std::ostream& operator<< (std::ostream& out, const StructPoliz& other) {
+	std::string type = "";
+	if (other.type == TypePoliz::plus_) type = "plus_";
+	if (other.type == TypePoliz::move_) type = "move_";
+	if (other.type == TypePoliz::adress_) type = "adress_";
+	if (other.type == TypePoliz::separator_) type = "separator_";
+	if (other.type == TypePoliz::operation_) type = "operation_";
+	out << other.name << " " << type << " " << other.value_int << " " << other.value_float << " " << other.value_char << " " << other.value_string;
+	return out;
+}
+
+
+extern std::ostream& operator<< (std::ostream& out, const Poliz& other) {
+	out << "{\n";
+	out << other.data_.size() << "\n";
+	int i = 0;
+	for (auto& to : other.data_) {
+		out << i++ << " " << to << std::endl;
+	}
+	out << "}\n";
+	return out;
+}
 
 using std::string;
 
-StructValue Execution::return_(const Poliz& poliz, int i) {
+StructValue Execution::return_(const Poliz& poliz, int i, string type) {
+	if (type == "void") {
+		return StructValue();
+	}
+	cout << operations.size() << std::endl;
 	StructPoliz one = get_operation_rvalue();
+	cout << "AAAA" << std::endl;
 	if (one.type_number == TypeNumber::int_) {
 		semantic.Delete_TID();
 		return StructValue(one.value_int);
@@ -65,7 +94,7 @@ void Execution::map_(const Poliz& poliz, int i) {
 			}
 		}
 	}
-	operations.pop_back();
+	// operations.pop_back();
 	semantic.Push_Value_TID(name.name, val);
 }
 
@@ -89,7 +118,7 @@ void Execution::array_(const Poliz& poliz, int i) {
 		}
 	}
 	int len = operations.back().value_int;
-	operations.pop_back();
+	// operations.pop_back();
 	operations.pop_back();
 	if (type1 == "int") {
 		if (len != val.value_array_int.size()) throw "Incorrect len of array " + poliz.data_[i].name;
@@ -1102,7 +1131,6 @@ void Execution::print_(const Poliz& poliz, int i) {
 	return;
 }
 
-
 void Execution::delete_(const Poliz& poliz, int i) {
 	StructPoliz key = get_operation_rvalue();
 	StructPoliz one = operations.back();
@@ -1128,48 +1156,44 @@ void Execution::delete_(const Poliz& poliz, int i) {
 void Execution::call_(const Poliz& poliz, int ii) {
 	StructPoliz Func = operations.back();
 	operations.pop_back();
-	vector<string> names;
 	vector<StructValue> params_val;
 	int i = operations.size();
 	--i;
 	while (operations[i].type != TypePoliz::separator_) {
 		StructPoliz one = operations[i--];
 		if (one.name != "") {
+			operations.pop_back();
 			StructValue v = *semantic.Get_Value_ID(one.name);
 			if (v.type_value == TypeValue::ArrayInt || v.type_value == TypeValue::ArrayChar || v.type_value == TypeValue::ArrayFloat) {
-				if (v.value_int == 0) {
-					names.push_back("number[]");
-					params_val.push_back(v);
-					continue;
-				}
+				params_val.push_back(v);
+				continue;
 			}
-			else if (v.type_value != TypeValue::Int && v.type_value != TypeValue::Char || v.type_value != TypeValue::Float)  {
-				if (v.value_int == 0 && v.value_float == 0.0) {
-					names.push_back("map");
-					params_val.push_back(v);
-					continue;
-				}
+			else if (v.type_value != TypeValue::Int && v.type_value != TypeValue::Char && v.type_value != TypeValue::Float)  {
+				params_val.push_back(v);
+				continue;
 			}
 		}
 		one = get_operation_rvalue();
-		names.push_back("number");
 		StructValue v;
 		v.value_int = one.value_int;
 		v.value_char = one.value_char;
 		v.value_float = one.value_float;
 		params_val.push_back(v);
 	}
-	std::reverse(names.begin(), names.end());
+	operations.pop_back();
+	int old_size = operations.size();
 	std::reverse(params_val.begin(), params_val.end());
-	string inner_name = Func.name + " ";
-	for (auto& to : names) inner_name += to + " ";
+	string inner_name = Func.name;
 	for (auto& el : semantic.TF) {
 		if (el.inner_name == inner_name) {
 			for (int i = 0; i < el.params.size(); ++i) {
 				semantic.Push_ID(el.params[i].name, el.params[i].type, el.params[i].type_map);
 				semantic.Push_Value_TID(el.params[i].name, params_val[i]);
 			}
-			StructValue res = Get(el.poliz_function);
+			StructValue res = Get(el.poliz_function, el.type_back);
+			// cout << "FFFFFF" << endl;
+			while (operations.size() > old_size) operations.pop_back();
+			// cout << "GGGGGGGGGGGGG" << endl;
 			if (el.type_back != "void") {
 				StructPoliz polka;
 				polka.type = TypePoliz::operation_; 
@@ -1191,22 +1215,35 @@ void Execution::call_(const Poliz& poliz, int ii) {
 					polka.value_char = res.value_char;
 					polka.value_float = res.value_char;
 				}
+				cout << "NNNNN" << endl;
 				operations.push_back(polka);
-				return;
+				cout << "FFF" << endl;
 			}
+				cout << "LLL" << endl;
+				return;
 		}
 	}
 }
 
-StructValue Execution::Get(const Poliz& poliz) {
+StructValue Execution::Get(const Poliz& poliz, string type) {
 	int i = 0;
+	{
+		StructPoliz polka;
+		polka.type = TypePoliz::separator_;
+		operations.push_back(polka);
+	}
 	for (; i < poliz.data_.size();++i) {
+		cout << "KK" << endl;
 		auto el = poliz.data_[i];
+		{
+			ofstream out("debugging.txt", std::ios::app);
+			out << el << std::endl;
+			out.close();
+		}
 		if (el.type == TypePoliz::separator_ || el.type == TypePoliz::adress_) {
 			if (el.type == TypePoliz::separator_) {
 				operations.push_back(el);
 			}
-			++i;
 			continue;
 		}
 		if (el.type == TypePoliz::move_) {
@@ -1219,7 +1256,7 @@ StructValue Execution::Get(const Poliz& poliz) {
 		}
 		if (el.type == TypePoliz::plus_) {
 			if (el.name == "return") {
-				return return_(poliz, i);
+				return return_(poliz, i, type);
 			}
 			else if (el.name.substr(0, 4) == "map ") {
 				map_(poliz, i);
@@ -1247,7 +1284,21 @@ StructValue Execution::Get(const Poliz& poliz) {
 			}
 			else if (el.name == "call") {
 				semantic.Create_TID();
-				call_(poliz, i);
+				try {
+					call_(poliz, i);
+					cout << "JJJJJJJ" << endl;
+				}
+				catch (...) {
+
+				}
+				continue;
+			}
+			else if (el.name == "create tid") {
+				semantic.Create_TID();
+				continue;
+			}
+			else if (el.name == "delete tid") {
+				semantic.Delete_TID();
 				continue;
 			}
 			else {

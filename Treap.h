@@ -15,14 +15,27 @@ using std::max;
 template<typename Type1, typename Type2>
 
 struct Node2 {
-    Node2* left, * right;
+    Node2<Type1, Type2>* left, * right;
     Type1 key; Type2 value; long long priority, height;
+    Node2(const Node2& other) {
+        key = other.key;
+        value = other.value;
+        priority = other.priority;
+        height = other.height;
+        left = other.left;
+        right = other.right;
+    }
     Node2(Type1 key, Type2 val) : left(nullptr), right(nullptr), key(key), value(val), height(0) {
         std::random_device rd;
         std::mt19937 rnd(rd());
         priority = rnd();
     }
-    Node2 operator=(const Node2& other) {
+    Node2() : key(0), value(0), left(nullptr), right(nullptr), height(0) {
+        std::random_device rd;
+        std::mt19937 rnd(rd());
+        priority = rnd();
+    }
+    Node2<Type1, Type2> operator=(const Node2<Type1, Type2>& other) {
         left = other.left;
         right = other.right;
         key = other.key;
@@ -31,8 +44,8 @@ struct Node2 {
         height = other.height;
         return *this;
     }
-    void clear(Node2* r) {
-        if (r == NULL) return;
+    void clear(Node2<Type1, Type2>* r) {
+        if (r == nullptr) return;
         clear(r->left);
         clear(r->right);
         delete r;
@@ -123,16 +136,37 @@ template<typename T1, typename T2> void print_func(Node2<T1, T2>* root) {
     print_func(root->right);
 }
 
+template<typename T1, typename T2> void check_func(Node2<T1, T2>* root) {
+    if (root == nullptr) return;
+    check_func(root->left);
+    check_func(root->right);
+}
+
 template<typename T1, typename T2> Node2<T1, T2>* erase_func(Node2<T1, T2>* root, T1 key) {
     pair<Node2<T1, T2>*, Node2<T1, T2>*> res1 = split_func(root, key);
     pair<Node2<T1, T2>*, Node2<T1, T2>*> res2 = split_func(res1.second, key + 1);
     return merge_func(res1.first, res2.second);
 }
 
+template<typename T1, typename T2> Node2<T1, T2>* copy_func(Node2<T1, T2>* node) {
+    if (node == nullptr) {
+        return nullptr;
+    }
+    Node2<T1, T2>* new_node = new Node2<T1, T2>;
+    new_node = node;
+    new_node->left = copy_func(node->left);
+    new_node->right = copy_func(node->right);
+    return new_node;
+}
+
+
 template<typename T1, typename T2>
 class Treap {
 public:
     Treap() : root(NULL) {};
+    Treap(const Treap& other) {
+        root = copy_func(other.root);
+    }
     Treap(Node2<T1, T2>* tree) {
         root = tree;
     }
@@ -160,6 +194,13 @@ public:
         cout << "{";
         print_func(root);
         cout << "}";
+    }
+    ~Treap() {
+        std::cout << "~Treap" << std::endl;
+        if (root != nullptr) {
+            check_func(root);
+            root->clear(root);
+        }
     }
 private:
     Node2<T1, T2>* root;

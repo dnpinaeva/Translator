@@ -13,9 +13,29 @@ void Parser::start() {
 		throw current_lexeme;
 	}
 	semantic.Check_Main();
+	{
+		StructPoliz polka;
+		polka.type = TypePoliz::separator_;
+		poliz.Push_Poliz(polka);
+	}
+	{
+		StructPoliz polka;
+		polka.name = "main";
+		polka.type = TypePoliz::operation_;
+		poliz.Push_Poliz(polka);
+	}
+	{
+		StructPoliz polka;
+		polka.name = "call";
+		polka.type = TypePoliz::plus_;
+		poliz.Push_Poliz(polka);
+	}
+}
+
+void Parser::execution_function(){
 	semantic.Create_TID();
-	//Execution execution(semantic);
-	//execution.Get(*where);
+	Execution execution(semantic);
+	execution.Get(*where, "void");
 }
 
 void Parser::program() {
@@ -406,6 +426,12 @@ void Parser::map_notitle(const string& name) {
 void Parser::block(bool is_tid_needed) {
 	if (is_tid_needed) {
 		semantic.Create_TID();
+		{
+			StructPoliz polka;
+			polka.name = "create tid";
+			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
+		}
 	}
 	if (current_lexeme.value != "{") {
 		throw current_lexeme;
@@ -417,6 +443,12 @@ void Parser::block(bool is_tid_needed) {
 	current_lexeme = lexer.get();
 	if (is_tid_needed) {
 		semantic.Delete_TID();
+		{
+			StructPoliz polka;
+			polka.name = "delete tid";
+			polka.type = TypePoliz::plus_;
+			where->Push_Poliz(polka);
+		}
 	}
 }
 
@@ -789,6 +821,12 @@ void Parser::for_() {
 	}
 	current_lexeme = lexer.get();
 	semantic.Create_TID();
+	{
+		StructPoliz polka;
+		polka.name = "create tid";
+		polka.type = TypePoliz::plus_;
+		where->Push_Poliz(polka);
+	}
 	if (current_lexeme.value != ";") {
 		description();
 		while (current_lexeme.value == ",") {
@@ -892,6 +930,13 @@ void Parser::for_() {
 		polka.type = TypePoliz::adress_;
 		polka.value_int = where->Get_Position() + 1;
 		where->Write_Position(p2, polka);
+	}
+	semantic.Delete_TID();
+	{
+		StructPoliz polka;
+		polka.name = "delete tid";
+		polka.type = TypePoliz::plus_;
+		where->Push_Poliz(polka);
 	}
 }
 

@@ -9,6 +9,7 @@ class Parser
 {
 public:
 	void start();
+	void execution_function();
 	Parser() = default;
 	Parser(LexicalAnalyzer& lexer) : lexer(lexer)  {
 		where = &poliz;

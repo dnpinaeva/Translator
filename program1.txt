@@ -1,30 +1,87 @@
-123.9
-12ab
-"adzsd"
-'agerdrj'
-'b'
-143.436 
-135.668.89
-125.a
+int arr[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+void process_array() {
+    int i = 0;
+    while (i < 10) {
+        i = i + 1;
+        print(arr[i]);
+    }
+}
+map<int, char> m = { {1, 'A'}, {2, 'B'}, {3, 'C'} };
+void test_map() {
+    char val = m.find(2);
+    print(val);
+    m.delete(1);
+    if (m.find(1) == 0) {
+        print("Key deleted");
+    }
+}
+int max(int a, int b) {
+    if (a > b) {
+        return a;
+    } else {
+        return b;
+    }
+}
+int max(map<char, int> a) {
+    if (1) {
+        return a[0];
+    } else {
+        return a[1];
+    }
+}
 
-int forif;
+void use_max() {
+    int result = max(10, 20);
+    print(result);
+}
+void factorial_example() {
+    int n = 5;
+    int fact = 1;
+    for (int i = 1; i <= n; i = i + 1) {
+        fact = fact * i;
+    }
+    print(fact);
+}
+void read_char() {
+    char user_input;
+    input(user_input);
+    if (user_input == 'Y' || user_input == 'y') {
+        print("Confirmed");
+    } else {
+        print("Rejected");
+    }
+}
+int counter = 0;
+int get_counter() {
+    return counter++;
+}
+void demo_postfix() {
+    get_counter();
+    int a = get_counter();
+    int b = get_counter();
+    print(a); // 0
+    print(b); // 1
+}
+void math_demo() {
+    int result = (3 + 5) * 2 - !(1 == 0) && (10 > 5);
+    print(result);  (8)*2 - 1 && 1 > 16 - 1 && 1 > 15 && 1 > 1;
+}
+map<float, int> scores;
+int buffer[100];
 
-a+++++++b,a!b,a!=b.n//ghdhvhjsdvhjsd
+void init() {
+    // пустое тело
+}
 
-//sdfvdfhdhjs
-
-/*sdfhjksdhj*/jkdfgjkf
-
-struct Node {
-    int next;
-    bool term;
-    int size;
-/*sdavfnjkvfv
-fffbhfbi
-fyfff
-*/
-    Node(): next(k, -1), term(false), size(0) {};
-};
-//fhjfdfssdf
-/*dfjkvfbfjknjf
-fhbvf
+int main() {
+    int x = 5;
+    float y;
+    char c = 'A';
+    {
+        int z = x + 10;
+	float x;
+	print(max(x, z));
+        print(z);
+    }
+    return 0;
+}
