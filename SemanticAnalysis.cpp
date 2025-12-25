@@ -132,8 +132,8 @@ void SemanticAnalysis::Push_ID(const string& name, const std::string& type, std:
 	if (type == "array char") {
 		new_id.value.type_value = TypeValue::ArrayChar;
 	}
-	cout << type << " " << type2 << std::endl;
-	cout << new_id.name << " " << (int)new_id.value.type_value << std::endl;
+	//cout << type << " " << type2 << std::endl;
+	//cout << new_id.name << " " << (int)new_id.value.type_value << std::endl;
 	StackTID.back().push_back(new_id);
 }
 

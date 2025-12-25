@@ -1,8 +1,15 @@
 
 int main() {
-int arr[5] = {0, 1, 2, 3, 4};
-print(arr[0]);
-print("a5")
-print(arr[2]);
+int a[9] = {1, 0, 3, 5, 4,4 , 2,2,2};
+for (int i = 0; i < 9; ++i) {
+for (int j = 0; j < 8; ++j) {
+if (a[j] > a[j + 1]) {
+	int t = a[j];
+	a[j] = a[j + 1];
+	a[j + 1] = t;	
+}
+}
+}
+print(a);
     return 0;
 }

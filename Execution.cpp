@@ -136,16 +136,19 @@ void Execution::array_(const Poliz& poliz, int i) {
 	// operations.pop_back();
 	operations.pop_back();
 	if (type1 == "int") {
-		if (len != val.value_array_int.size()) throw "Incorrect len of array " + poliz.data_[i].name;
+		if (len != val.value_array_int.size()) throw std::string("Incorrect len of array " + poliz.data_[i].name);
 		val.type_value = TypeValue::ArrayInt;
+		std::reverse(val.value_array_int.begin(), val.value_array_int.end());
 	}
 	if (type1 == "float") {
-		if (len != val.value_array_float.size()) throw "Incorrect len of array " + poliz.data_[i].name;
+		if (len != val.value_array_float.size()) throw std::string("Incorrect len of array " + poliz.data_[i].name);
 		val.type_value = TypeValue::ArrayFloat;
+		std::reverse(val.value_array_float.begin(), val.value_array_float.end());
 	}
 	if (type1 == "char") {
-		if (len != val.value_array_char.size()) throw "Incorrect len of array " + poliz.data_[i].name;
+		if (len != val.value_array_char.size()) throw std::string("Incorrect len of array " + poliz.data_[i].name);
 		val.type_value = TypeValue::ArrayChar;
+		std::reverse(val.value_array_char.begin(), val.value_array_char.end());
 	}
 	// cout << name.name << (int)val.type_value << endl;
 	semantic.Push_Value_TID(name.name, val);
@@ -298,6 +301,7 @@ void Execution::expression_(const Poliz& poliz, int i) {
 		StructPoliz one = operations.back();
 		operations.pop_back();
 		StructValue v = *semantic.Get_Value_ID(one.name);
+		//cout << "two " << two << "\n" << "one " << one << "\n";
 		if (v.type_value == TypeValue::ArrayInt || v.type_value == TypeValue::MapIntInt || v.type_value == TypeValue::MapFloatInt || v.type_value == TypeValue::MapCharInt) {
 			one.type_number = TypeNumber::int_;
 		}
@@ -322,6 +326,7 @@ void Execution::expression_(const Poliz& poliz, int i) {
 			one.value_float = two.value_char;
 			one.value_char = two.value_char;
 		}
+		//cout << "res " << one << "\n";
 		operations.push_back(one);
 	}
 	else if (op == "a++") {
@@ -940,7 +945,7 @@ void Execution::expression_(const Poliz& poliz, int i) {
 		operations.pop_back();
 		StructValue* v = semantic.Get_Value_ID(one.name);
 		int tmp;
-		cout << (int)v->type_value << " -type\n";
+		//cout << (int)v->type_value << " -type\n";
 		if (v->type_value == TypeValue::MapIntInt) {
 			tmp = v->value_int_int.find(two.value_int);
 		}
@@ -1077,13 +1082,14 @@ void Execution::input_(const Poliz& poliz, int i) {
 
 void Execution::print_(const Poliz& poliz, int i) {
 	StructPoliz t = poliz.Get_Value(i);
+	//cout << "\n\nprint\n";
 	if (t.value_string != "") {
 		cout << t.value_string;
 		return;
 	}
 	StructPoliz one = operations.back();
 	operations.pop_back();
-	// cout << one << endl;
+	//cout << "\n\n" << "print one " << one << endl;
 	if (one.name == "") {
 		if (one.type_number == TypeNumber::float_) {
 			cout << one.value_float;
@@ -1095,7 +1101,12 @@ void Execution::print_(const Poliz& poliz, int i) {
 			cout << one.value_int;
 		}
 		else {
-			cout << one.value_string << " -ratata";
+			if (one.value_string == "\\n") {
+				cout << "\n";
+			}
+			else {
+				cout << one.value_string /*<< " -ratata"*/;
+			}
 		}
 	}
 	else {
@@ -1116,7 +1127,7 @@ void Execution::print_(const Poliz& poliz, int i) {
 				cout << "]";
 			}
 			else {
-				cout << v.value_array_int[v.value_int];
+				cout << v.value_array_int[one.value_int];
 			}
 		}
 		else if (v.type_value == TypeValue::ArrayChar) {
@@ -1126,7 +1137,7 @@ void Execution::print_(const Poliz& poliz, int i) {
 				cout << "]";
 			}
 			else {
-				cout << v.value_array_char[v.value_int];
+				cout << v.value_array_char[one.value_int];
 			}
 		}
 		else if (v.type_value == TypeValue::ArrayFloat) {
@@ -1136,35 +1147,80 @@ void Execution::print_(const Poliz& poliz, int i) {
 				cout << "]";
 			}
 			else {
-				cout << v.value_array_float[v.value_int];
+				cout << v.value_array_float[one.value_int];
 			}
 		}
 		else if (v.type_value == TypeValue::MapIntInt) {
-			v.value_int_int.print_treap();
+			if (one.type_number == TypeNumber::not_number_) {
+				v.value_int_int.print_treap();
+			}
+			else {
+				cout << v.value_int_int.get(one.value_int);
+			}
 		}
 		else if (v.type_value == TypeValue::MapIntFloat) {
-			v.value_int_float.print_treap();
+			if (one.type_number == TypeNumber::not_number_) {
+				v.value_int_float.print_treap();
+			}
+			else {
+				cout << v.value_int_float.get(one.value_int);
+			}
 		}
 		else if (v.type_value == TypeValue::MapIntChar) {
-			v.value_int_char.print_treap();
+			if (one.type_number == TypeNumber::not_number_) {
+				v.value_int_char.print_treap();
+			}
+			else {
+				cout << v.value_int_char.get(one.value_char);
+			}
 		}
 		else if (v.type_value == TypeValue::MapCharInt) {
-			v.value_char_int.print_treap();
+			if (one.type_number == TypeNumber::not_number_) {
+				v.value_char_int.print_treap();
+			}
+			else {
+				cout << v.value_char_int.get(one.value_char);
+			}
 		}
 		else if (v.type_value == TypeValue::MapCharFloat) {
-			v.value_char_float.print_treap();
+			if (one.type_number == TypeNumber::not_number_) {
+				v.value_char_float.print_treap();
+			}
+			else {
+				cout << v.value_char_float.get(one.value_char);
+			}
 		}
 		else if (v.type_value == TypeValue::MapCharChar) {
-			v.value_char_char.print_treap();
+			if (one.type_number == TypeNumber::not_number_) {
+				v.value_char_char.print_treap();
+			}
+			else {
+				cout << v.value_char_char.get(one.value_char);
+			}
 		}
 		else if (v.type_value == TypeValue::MapFloatInt) {
-			v.value_float_int.print_treap();
+			if (one.type_number == TypeNumber::not_number_) {
+				v.value_float_int.print_treap();
+			}
+			else {
+				cout << v.value_float_int.get(one.value_float);
+			}
 		}
 		else if (v.type_value == TypeValue::MapFloatFloat) {
-			v.value_float_float.print_treap();
+			if (one.type_number == TypeNumber::not_number_) {
+				v.value_float_float.print_treap();
+			}
+			else {
+				cout << v.value_float_float.get(one.value_float);
+			}
 		}
 		else if (v.type_value == TypeValue::MapFloatChar) {
-			v.value_float_char.print_treap();
+			if (one.type_number == TypeNumber::not_number_) {
+				v.value_float_char.print_treap();
+			}
+			else {
+				cout << v.value_float_char.get(one.value_float);
+			}
 		}
 	}
 	return;
@@ -1339,13 +1395,7 @@ StructValue Execution::Get(const Poliz& poliz, string type) {
 			}
 			else if (el.name == "call") {
 				semantic.Create_TID();
-				try {
-					call_(poliz, i);
-					// cout << "JJJJJJJ" << endl;
-				}
-				catch (...) {
-
-				}
+				call_(poliz, i);
 				continue;
 			}
 			else if (el.name == "create tid") {

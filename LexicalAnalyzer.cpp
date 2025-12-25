@@ -328,7 +328,12 @@ int main()
         out << to.poliz_function;
     }
     out.close();
-    parser.execution_function();
+    try {
+        parser.execution_function();
+    }
+    catch (string e) {
+        cout << "\nruntime errror\n" << e;
+    }
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"

@@ -90,6 +90,10 @@ public:
         out << p.value << " " << p.type << "\n";
         out.close();
         ++p.line;
+        if (p.type == 20) {
+            p.value.pop_back();
+            p.value.erase(p.value.begin());
+        }
         return p;
     }
 private:

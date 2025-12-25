@@ -1259,7 +1259,7 @@ void Parser::expression9() {
 		// cout << "current_lexeme: " << "\"" << current_lexeme.value << "\"" << current_lexeme.type << "\n";
 		try {
 			type_lex = semantic.Check_ID(current_lexeme);
-			// cout << "type: " << type_lex << '\n';
+			//cout << "type: \"" << type_lex << "\"" << '\n';
 			{
 				StructPoliz polka;
 				polka.name = current_lexeme.value;
@@ -1268,7 +1268,7 @@ void Parser::expression9() {
 			}
 		}
 		catch (std::string e) {
-
+			//cout << "catch\n";
 		}
 		current_lexeme = lexer.get();
 		if (current_lexeme.value == "++" || current_lexeme.value == "--") {
@@ -1330,7 +1330,7 @@ void Parser::expression9() {
 				ofstream out("debugging.txt", std::ios::app);
 				out << type_lex << "\n";
 				out.close();
-				throw string("error type");
+				throw string("error type " + std::to_string(current_lexeme.line));
 			}
 			semantic.Push_Stack(-1, current_lexeme);
 			current_lexeme = lexer.get();
